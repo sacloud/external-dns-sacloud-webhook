@@ -41,14 +41,12 @@ func ApplyHandler(client Provider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("[ApplyHandler] %s %s", r.Method, r.URL.Path)
 
-		// Validate Content-Type header
 		if ct := r.Header.Get("Content-Type"); ct != "application/external.dns.webhook+json;version=1" {
 			log.Printf("[ApplyHandler] invalid Content-Type: %s", ct)
 			http.Error(w, "invalid content type", http.StatusUnsupportedMediaType)
 			return
 		}
 
-		// Read raw request body
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			log.Printf("[ApplyHandler] error reading body: %v", err)
@@ -57,7 +55,6 @@ func ApplyHandler(client Provider) http.HandlerFunc {
 		}
 		log.Printf("[ApplyHandler] raw request body: %s", string(body))
 
-		// Decode JSON into ChangeRequest
 		var req ChangeRequest
 		if err := json.Unmarshal(body, &req); err != nil {
 			log.Printf("[ApplyHandler] error decoding payload: %v", err)
@@ -73,7 +70,6 @@ func ApplyHandler(client Provider) http.HandlerFunc {
 		// Build list of records to create
 		var toCreate []provider.Record
 		for _, e := range req.Create {
-			// Determine actual record type
 			var recType string
 			if e.RecordType == "TXT" && strings.HasPrefix(e.DNSName, txtPrefix) {
 				// Always treat registry entries as TXT
@@ -91,11 +87,9 @@ func ApplyHandler(client Provider) http.HandlerFunc {
 				}
 			}
 
-			// Strip zone suffix from the DNSName
 			name := e.DNSName
 			name = strings.TrimSuffix(name, zoneSuffix)
 
-			// Process each target value
 			var targets []string
 			for _, t := range e.Targets {
 				switch recType {
@@ -125,13 +119,10 @@ func ApplyHandler(client Provider) http.HandlerFunc {
 			})
 		}
 
-		// Build list of records to delete
 		var toDelete []provider.Record
 		for _, e := range req.Delete {
-			// Determine actual record type
 			var recType string
 			if e.RecordType == "TXT" && strings.HasPrefix(e.DNSName, txtPrefix) {
-				// Always treat registry entries as TXT
 				recType = "TXT"
 			} else {
 				recType = e.RecordType
@@ -145,19 +136,15 @@ func ApplyHandler(client Provider) http.HandlerFunc {
 				}
 			}
 
-			// Strip zone suffix from DNSName
 			name := e.DNSName
 			name = strings.TrimSuffix(name, zoneSuffix)
 
-			// Process each target value
 			var targets []string
 			for _, t := range e.Targets {
 				switch recType {
 				case "TXT":
-					// Remove surrounding quotes for TXT
 					t = strings.Trim(t, "\"")
 				case "CNAME", "ALIAS":
-					// Ensure trailing dot for CNAME/ALIAS
 					if !strings.HasSuffix(t, ".") {
 						t += "."
 					}
@@ -180,7 +167,6 @@ func ApplyHandler(client Provider) http.HandlerFunc {
 
 		log.Printf("[ApplyHandler] create count: %d, delete count: %d", len(toCreate), len(toDelete))
 
-		// Apply changes via SakuraCloud client
 		if err := client.ApplyChanges(toCreate, toDelete); err != nil {
 			log.Printf("[ApplyHandler] error applying changes: %v", err)
 			http.Error(w, "failed to apply DNS changes", http.StatusInternalServerError)

@@ -37,12 +37,10 @@ type Record struct {
 
 // ListRecords fetches all DNS records for the configured zone.
 func (c *Client) ListRecords() ([]Record, error) {
-	// create a context with timeout for the API call
 	ctx, cancel := context.WithTimeout(c.Context, c.RequestTimeout)
 	defer cancel()
 
 	log.Printf("Listing records for zone '%s' (ID: %d)", c.ZoneName, c.ZoneID)
-	// read the DNS zone details
 	dnsZone, err := c.Service.ReadWithContext(ctx, &dns.ReadRequest{ID: c.ZoneID})
 	if err != nil {
 		log.Printf("Error reading DNS zone: %v", err)
@@ -50,7 +48,6 @@ func (c *Client) ListRecords() ([]Record, error) {
 	}
 
 	var records []Record
-	// iterate over all record sets and map to our Record struct
 	for _, rs := range dnsZone.Records {
 		rec := Record{
 			Type:    string(rs.Type),
@@ -66,19 +63,16 @@ func (c *Client) ListRecords() ([]Record, error) {
 
 // ApplyChanges applies create and delete operations to DNS records.
 func (c *Client) ApplyChanges(create, del []Record) error {
-	// context with timeout
 	ctx, cancel := context.WithTimeout(c.Context, c.RequestTimeout)
 	defer cancel()
 
 	log.Printf("Applying changes: create %d, delete %d records", len(create), len(del))
-	// read current zone state
 	dnsZone, err := c.Service.ReadWithContext(ctx, &dns.ReadRequest{ID: c.ZoneID})
 	if err != nil {
 		log.Printf("Error reading DNS zone before update: %v", err)
 		return err
 	}
 
-	// rebuild record sets: start with existing, filtering out deletes
 	var newSets []*iaas.DNSRecord
 	for _, rs := range dnsZone.Records {
 		shouldDelete := false
@@ -94,7 +88,6 @@ func (c *Client) ApplyChanges(create, del []Record) error {
 		}
 	}
 
-	// append create entries
 	for _, cRec := range create {
 		ttl := cRec.TTL
 		if ttl == 0 {
@@ -110,7 +103,6 @@ func (c *Client) ApplyChanges(create, del []Record) error {
 		newSets = append(newSets, newRec)
 	}
 
-	// send update request to SakuraCloud
 	updateReq := &dns.UpdateRequest{
 		ID:      c.ZoneID,
 		Records: newSets,

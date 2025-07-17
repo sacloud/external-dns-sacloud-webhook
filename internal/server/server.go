@@ -70,12 +70,6 @@ func NewMux(client *provider.Client, cfg config.Config) *http.ServeMux {
 		handler.AdjustHandler(client)(w, r)
 	})
 
-	// Legacy path for apply "/applyChanges"
-	// mux.HandleFunc("/applyChanges", func(w http.ResponseWriter, r *http.Request) {
-	//     log.Printf("[Apply] %s %s", r.Method, r.URL.Path)
-	//     handler.ApplyHandler(client)(w, r)
-	// })
-
 	return mux
 }
 

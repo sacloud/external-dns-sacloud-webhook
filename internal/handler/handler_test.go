@@ -26,8 +26,6 @@ import (
 	"sigs.k8s.io/external-dns/endpoint"
 )
 
-// fakeProvider is a mock implementation of the handler.Provider interface.
-// The behavior of ListRecords, ApplyChanges, and GetZoneName can be controlled via struct fields.
 type fakeProvider struct {
 	// For RecordsHandler tests
 	records []provider.Record
@@ -50,11 +48,8 @@ func (f *fakeProvider) ApplyChanges(create, del []provider.Record) error {
 }
 
 func (f *fakeProvider) GetZoneName() string {
-	// Used by RecordsHandler to construct the FQDN suffix
 	return "example.com"
 }
-
-// --- Tests for RecordsHandler ---
 
 func TestRecordsHandler_Success(t *testing.T) {
 	fake := &fakeProvider{
@@ -98,8 +93,6 @@ func TestRecordsHandler_Error(t *testing.T) {
 	}
 }
 
-// --- Tests for AdjustHandler ---
-
 func TestAdjustHandler_PassThrough(t *testing.T) {
 	fake := &fakeProvider{}
 	handler := AdjustHandler(fake)
@@ -140,8 +133,6 @@ func TestAdjustHandler_BadContentType(t *testing.T) {
 		t.Errorf("expected 415 Unsupported Media Type, got %d", rr.Code)
 	}
 }
-
-// --- Tests for ApplyHandler ---
 
 func TestApplyHandler_Success(t *testing.T) {
 	fake := &fakeProvider{}

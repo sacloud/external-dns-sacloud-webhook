@@ -35,7 +35,6 @@ func RecordsHandler(client Provider) http.HandlerFunc {
 
 		log.Printf("[RecordsHandler] GET /records invoked")
 
-		// Fetch all records from SakuraCloud
 		records, err := client.ListRecords()
 		if err != nil {
 			log.Printf("[RecordsHandler] error listing records: %v", err)
@@ -45,10 +44,8 @@ func RecordsHandler(client Provider) http.HandlerFunc {
 
 		zoneSuffix := "." + client.GetZoneName()
 
-		// Convert provider.Record to endpoint.Endpoint
 		var endpoints []*endpoint.Endpoint
 		for _, rec := range records {
-			// Build the full DNS name (FQDN)
 			fqdn := rec.Name
 			if !strings.HasSuffix(fqdn, zoneSuffix) {
 				fqdn += zoneSuffix
@@ -80,7 +77,6 @@ func RecordsHandler(client Provider) http.HandlerFunc {
 			endpoints = append(endpoints, ep)
 		}
 
-		// Ensure we return an empty array, not null
 		if endpoints == nil {
 			endpoints = []*endpoint.Endpoint{}
 		}
