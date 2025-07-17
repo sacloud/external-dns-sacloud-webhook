@@ -6,7 +6,7 @@
 [![Version](https://img.shields.io/github/v/tag/sacloud/external-dns-sacloud-webhook)](https://github.com/sacloud/external-dns-sacloud-webhook/releases/latest)
 ![Downloads](https://img.shields.io/github/downloads/sacloud/external-dns-sacloud-webhook/total)
 [![](https://img.shields.io/github/release-date/sacloud/external-dns-sacloud-webhook?style=badge)](https://github.com/sacloud/external-dns-sacloud-webhook/releases)
-[![License](https://img.shields.io/github/license/sacloud/external-dns-sacloud-webhook.svg)](https://github.com/sacloud/external-dns-sacloud-webhook/blob/master/LICENSE)
+[![License](https://img.shields.io/github/license/sacloud/external-dns-sacloud-webhook.svg)](https://github.com/sacloud/external-dns-sacloud-webhook/blob/main/LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/sacloud/external-dns-sacloud-webhook)](https://goreportcard.com/report/github.com/sacloud/external-dns-sacloud-webhook)
 
 <p align="left">
