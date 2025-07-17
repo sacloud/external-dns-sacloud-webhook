@@ -26,7 +26,6 @@ import (
 	"github.com/sacloud/iaas-service-go/dns"
 )
 
-// fakeDNSService is a mock implementation of the dns.DNSService interface for testing purposes.
 type fakeDNSService struct {
 	findResp      []*iaas.DNS
 	findErr       error
@@ -51,7 +50,6 @@ func (f *fakeDNSService) UpdateWithContext(ctx context.Context, req *dns.UpdateR
 }
 
 func TestListRecords(t *testing.T) {
-	// DNS records returned by the mock
 	fake := &fakeDNSService{
 		readResp: &iaas.DNS{
 			ID:   123,
@@ -94,7 +92,6 @@ func TestListRecords(t *testing.T) {
 }
 
 func TestApplyChanges(t *testing.T) {
-	// Prepare initial DNS records as existing state
 	fake := &fakeDNSService{
 		readResp: &iaas.DNS{
 			ID:   999,
@@ -118,7 +115,6 @@ func TestApplyChanges(t *testing.T) {
 		RequestTimeout: 5 * time.Second,
 	}
 
-	// These records will be created and deleted in the ApplyChanges call
 	toCreate := []Record{
 		{Name: "newA", Targets: []string{"3.3.3.3"}, Type: "A"},
 		{Name: "newTXT", Targets: []string{"hello=world"}, Type: "TXT"},
@@ -168,7 +164,6 @@ func TestApplyChanges(t *testing.T) {
 }
 
 func TestApplyChanges_Error(t *testing.T) {
-	// The mock returns an error from UpdateWithContext
 	fake := &fakeDNSService{
 		readResp:  &iaas.DNS{ID: 1, Name: "z", Records: []*iaas.DNSRecord{}},
 		updateErr: errors.New("api failure"),

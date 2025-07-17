@@ -51,16 +51,12 @@ type DNSService interface {
 func NewClient(zoneName, token, secret string) (*Client, error) {
 	log.Printf("Initializing SakuraCloud DNS client for zone '%s'", zoneName)
 
-	// 1. Initialize API client
 	apiClient := iaas.NewClient(token, secret)
-	// Note: endpoint default is used
 	log.Printf("SakuraCloud API client created with provided token and secret")
 
-	// 2. Create DNS service
 	svc := dns.New(apiClient)
 	log.Printf("DNS service initialized")
 
-	// 3. Find the zone by name
 	log.Printf("Searching for DNS zone '%s'", zoneName)
 	zones, err := svc.Find(&dns.FindRequest{})
 	if err != nil {
@@ -82,7 +78,6 @@ func NewClient(zoneName, token, secret string) (*Client, error) {
 		return nil, ErrZoneNotFound
 	}
 
-	// 4. Construct client
 	client := &Client{
 		Context:        context.Background(),
 		Service:        svc,

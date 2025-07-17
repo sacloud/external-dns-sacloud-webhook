@@ -35,7 +35,6 @@ func AdjustHandler(client Provider) http.HandlerFunc {
 			return
 		}
 
-		// Decode incoming desired endpoints
 		var desired []*endpoint.Endpoint
 		if err := json.NewDecoder(r.Body).Decode(&desired); err != nil {
 			log.Printf("[AdjustHandler] error decoding payload: %v", err)
@@ -48,7 +47,6 @@ func AdjustHandler(client Provider) http.HandlerFunc {
 		// For now, we just pass through all desired endpoints
 		adjusted := desired
 
-		// Return final endpoints
 		w.Header().Set(
 			"Content-Type",
 			"application/external.dns.webhook+json;version=1",
