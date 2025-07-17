@@ -1,0 +1,29 @@
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    commit-message:
+      prefix: "actions:"
+    open-pull-requests-limit: 20
+    reviewers:
+      - ippanpeople
+    assignees:
+      - ippanpeople
+
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: daily
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    commit-message:
+      prefix: "go:"
+    reviewers:
+      - ippanpeople
+    assignees:
+      - ippanpeople
