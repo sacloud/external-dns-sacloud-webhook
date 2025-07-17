@@ -1,11 +1,11 @@
 # SakuraCloud External-DNS Webhook Provider
 
 ![Test](https://github.com/sacloud/external-dns-sacloud-webhook/workflows/Tests/badge.svg)
-[![](https://github.com/sacloud/external-dns-sacloud-webhook/actions/workflows/release.yml/badge.svg)](https://github.com/sacloud/external-dns-sacloud-webhook/actions/workflows/release.yml)
+[![Release](https://github.com/sacloud/external-dns-sacloud-webhook/actions/workflows/release.yml/badge.svg)](https://github.com/sacloud/external-dns-sacloud-webhook/actions/workflows/release.yml)
 [![Discord](https://img.shields.io/badge/Discord-SAKURA%20Users-blue)](https://discord.gg/yUEDN8hbMf)
 [![Version](https://img.shields.io/github/v/tag/sacloud/external-dns-sacloud-webhook)](https://github.com/sacloud/external-dns-sacloud-webhook/releases/latest)
-![Downloads](https://img.shields.io/github/downloads/sacloud/external-dns-sacloud-webhook/total)
-[![](https://img.shields.io/github/release-date/sacloud/external-dns-sacloud-webhook?style=badge)](https://github.com/sacloud/external-dns-sacloud-webhook/releases)
+[![Downloads](https://img.shields.io/github/downloads/sacloud/external-dns-sacloud-webhook/total)](https://github.com/sacloud/external-dns-sacloud-webhook/releases)
+[![Release Date](https://img.shields.io/github/release-date/sacloud/external-dns-sacloud-webhook?style=badge)](https://github.com/sacloud/external-dns-sacloud-webhook/releases)
 [![License](https://img.shields.io/github/license/sacloud/external-dns-sacloud-webhook.svg)](https://github.com/sacloud/external-dns-sacloud-webhook/blob/main/LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/sacloud/external-dns-sacloud-webhook)](https://goreportcard.com/report/github.com/sacloud/external-dns-sacloud-webhook)
 
@@ -14,9 +14,9 @@
   <a href="README.ja.md">日本語</a>
 </p>
 
-ExternalDNS is a Kubernetes plugin for automating DNS record management for Kubernetes resources. By default, Kubernetes only handles internal cluster DNS, but ExternalDNS delegates DNS record synchronization to external providers (e.g., [SakuraCloud](https://cloud.sakura.ad.jp/), AWS Route 53, etc.).
+ExternalDNS is a Kubernetes plugin for automating DNS record management for Kubernetes resources. By default, Kubernetes only handles internal cluster DNS. ExternalDNS delegates DNS record synchronization to external providers (e.g., [SakuraCloud](https://cloud.sakura.ad.jp/), AWS Route 53, etc.).
 
-This project implements a **Webhook Provider** for SakuraCloud, allowing ExternalDNS to manage SakuraCloud DNS zones via standard webhook calls. It fully adheres to the [official ExternalDNS Webhook Provider specification](https://kubernetes-sigs.github.io/external-dns/v0.14.2/tutorials/webhook-provider), enabling seamless integration into any existing ExternalDNS deployment and ensuring compatibility with future community-driven enhancements. For more details on ExternalDNS and other supported providers, please refer to the official documentation: [kubernetes-sigs/external-dns](https://github.com/kubernetes-sigs/external-dns?tab=readme-ov-file#readme).
+This project implements a **Webhook Provider** for SakuraCloud, allowing ExternalDNS to manage SakuraCloud DNS zones via standard webhook calls. It fully adheres to the [official ExternalDNS Webhook Provider specification](https://kubernetes-sigs.github.io/external-dns/v0.14.2/tutorials/webhook-provider), enabling seamless integration into any existing ExternalDNS deployment. For more details, see the official documentation: [kubernetes-sigs/external-dns](https://github.com/kubernetes-sigs/external-dns?tab=readme-ov-file#readme).
 
 > [!IMPORTANT]
 > **If** an **upgrade path** between versions is **listed here**, please make sure to follow those paths **without skipping a version**! Otherwise, inconsistencies or errors may occur.
@@ -77,7 +77,8 @@ Executes:
 4. Deploy sample app and Ingress rules
 
 Usage:
-1.	Update the parameters at the top of example/reset-and-deploy.sh, such as the SakuraCloud API Token, Secret, and DNS Zone name,  and the sample app’s target.
+1.	Update the parameters at the top of `example/reset-and-deploy.sh`, including the SakuraCloud API Token, Secret, and DNS Zone name.
+Then update the sample app’s target accordingly.
 -	You can edit the environment variable assignments directly in the script header.
 -	Ensure your Kubernetes cluster is properly configured and accessible.
 2.	From the project root directory, run:

@@ -1,11 +1,11 @@
 # SakuraCloud External-DNS Webhook Provider
 
 ![Test](https://github.com/sacloud/external-dns-sacloud-webhook/workflows/Tests/badge.svg)
-[![](https://github.com/sacloud/external-dns-sacloud-webhook/actions/workflows/release.yml/badge.svg)](https://github.com/sacloud/external-dns-sacloud-webhook/actions/workflows/release.yml)
+[![Release](https://github.com/sacloud/external-dns-sacloud-webhook/actions/workflows/release.yml/badge.svg)](https://github.com/sacloud/external-dns-sacloud-webhook/actions/workflows/release.yml)
 [![Discord](https://img.shields.io/badge/Discord-SAKURA%20Users-blue)](https://discord.gg/yUEDN8hbMf)
 [![Version](https://img.shields.io/github/v/tag/sacloud/external-dns-sacloud-webhook)](https://github.com/sacloud/external-dns-sacloud-webhook/releases/latest)
-![Downloads](https://img.shields.io/github/downloads/sacloud/external-dns-sacloud-webhook/total)
-[![](https://img.shields.io/github/release-date/sacloud/external-dns-sacloud-webhook?style=badge)](https://github.com/sacloud/external-dns-sacloud-webhook/releases)
+[![Downloads](https://img.shields.io/github/downloads/sacloud/external-dns-sacloud-webhook/total)](https://github.com/sacloud/external-dns-sacloud-webhook/releases)
+[![Release Date](https://img.shields.io/github/release-date/sacloud/external-dns-sacloud-webhook?style=badge)](https://github.com/sacloud/external-dns-sacloud-webhook/releases)
 [![License](https://img.shields.io/github/license/sacloud/external-dns-sacloud-webhook.svg)](https://github.com/sacloud/external-dns-sacloud-webhook/blob/main/LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/sacloud/external-dns-sacloud-webhook)](https://goreportcard.com/report/github.com/sacloud/external-dns-sacloud-webhook)
 
@@ -16,7 +16,7 @@
 
 ExternalDNS は Kubernetes リソースの DNS レコード管理を自動化するプラグインです。デフォルトでは Kubernetes はクラスター内部の DNS のみを扱いますが、ExternalDNS は外部の DNS プロバイダー（例：SakuraCloud、AWS Route 53、など）にレコードの同期を委任します。
 
-本プロジェクトは SakuraCloud 向けの **Webhook プロバイダー** を実装しており、ExternalDNS が標準化された webhook 経由で SakuraCloud DNS ゾーンを管理できるようにします。公式の [ExternalDNS Webhook Provider 仕様](https://kubernetes-sigs.github.io/external-dns/v0.14.2/tutorials/webhook-provider) に完全準拠し、[既存の ExternalDNS](https://github.com/kubernetes-sigs/external-dns) デプロイメントにシームレスに統合でき、将来のコミュニティドリブンな機能追加にも対応します。
+本プロジェクトは SakuraCloud 向けの **Webhook プロバイダー** を実装しており、ExternalDNS が標準化された webhook 経由で SakuraCloud DNS ゾーンを管理できるようにします。公式の [ExternalDNS Webhook Provider 仕様](https://kubernetes-sigs.github.io/external-dns/v0.14.2/tutorials/webhook-provider) に完全準拠し、[既存の ExternalDNS](https://github.com/kubernetes-sigs/external-dns) デプロイメントにシームレスへ統合でき、将来のコミュニティドリブンな機能追加にも対応します。
 
 > [!IMPORTANT]
 > **アップグレードパスがこのセクションで示されている場合**、バージョンを飛ばさずに必ず順番に**適用**してください！これを無視すると、一貫性の欠如やエラーが発生する可能性があります。
@@ -80,13 +80,13 @@ ExternalDNS は Kubernetes リソースの DNS レコード管理を自動化す
 
 **使用手順:**
 
-1. スクリプト冒頭の環境変数(TOKEN, SECRET, ZONE など)やサンプルアプリの target を編集 
+1. スクリプト冒頭の環境変数(TOKEN, SECRET, ZONE など)やサンプルアプリの target を編集
 2. プロジェクトルートで以下を実行:
 
    ```bash
    bash example/reset-and-deploy.sh
    ```
-3. 各ステップのログが表示され、リソースが順次再作成されます。
+3. 各ステップのログが表示され、リソースが順次再作成されます
 4. 完了後、以下コマンドで状態を確認:
 
    ```bash
