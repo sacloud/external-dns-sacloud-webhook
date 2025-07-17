@@ -16,8 +16,8 @@ FROM gcr.io/distroless/static-debian12:nonroot
 
 USER nonroot:nonroot
 
-COPY external-dns-provider /external-dns-provider
+COPY external-dns-sacloud-webhook /external-dns-sacloud-webhook
 
 EXPOSE 8888
 
-ENTRYPOINT ["/external-dns-provider"]
+ENTRYPOINT ["/external-dns-sacloud-webhook"]

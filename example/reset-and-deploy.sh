@@ -65,7 +65,7 @@ spec:
     spec:
       containers:
         - name: external-dns-provider
-          image: dockerrc.sakuracr.jp/external-dns-provider:latest
+          image: dockerrc.sakuracr.jp/external-dns-sacloud-webhook:latest
           args:
             - "--token=\$(TOKEN)"
             - "--secret=\$(SECRET)"
