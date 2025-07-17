@@ -77,7 +77,8 @@ Executes:
 4. Deploy sample app and Ingress rules
 
 Usage:
-1.	Update the parameters at the top of example/reset-and-deploy.sh, such as the SakuraCloud API Token, Secret, and DNS Zone name,  and the sample app’s target.
+1.	Update the parameters at the top of `example/reset-and-deploy.sh`, including the SakuraCloud API Token, Secret, and DNS Zone name.
+Then update the sample app’s target accordingly.
 -	You can edit the environment variable assignments directly in the script header.
 -	Ensure your Kubernetes cluster is properly configured and accessible.
 2.	From the project root directory, run:

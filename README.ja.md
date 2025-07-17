@@ -80,13 +80,13 @@ ExternalDNS は Kubernetes リソースの DNS レコード管理を自動化す
 
 **使用手順:**
 
-1. スクリプト冒頭の環境変数(TOKEN, SECRET, ZONE など)やサンプルアプリの target を編集 
+1. スクリプト冒頭の環境変数(TOKEN, SECRET, ZONE など)やサンプルアプリの target を編集
 2. プロジェクトルートで以下を実行:
 
    ```bash
    bash example/reset-and-deploy.sh
    ```
-3. 各ステップのログが表示され、リソースが順次再作成されます。
+3. 各ステップのログが表示され、リソースが順次再作成されます
 4. 完了後、以下コマンドで状態を確認:
 
    ```bash
