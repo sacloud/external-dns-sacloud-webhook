@@ -1,4 +1,4 @@
-# Copyright 2022-2025 The sacloud/go-template Authors
+# Copyright 2025- The sacloud/external-dns-sacloud-webhook authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,28 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.20 AS builder
-MAINTAINER Usacloud Authors <sacloud.users@gmail.com>
+FROM gcr.io/distroless/static-debian12:nonroot
 
-RUN  apt-get update && apt-get -y install \
-        bash \
-        git  \
-        make \
-        zip  \
-        bzr  \
-      && apt-get clean \
-      && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/*
+USER nonroot:nonroot
 
-ADD . /go/src/github.com/sacloud/go-template
-WORKDIR /go/src/github.com/sacloud/go-template
-ENV CGO_ENABLED 0
-RUN make tools build
-# ======
+COPY external-dns-provider /external-dns-provider
 
-FROM alpine:3.16
-MAINTAINER Usacloud Authors <sacloud.users@gmail.com>
+EXPOSE 8888
 
-RUN apk add --no-cache --update ca-certificates
-COPY --from=builder /go/src/github.com/sacloud/go-template/go-template /usr/bin/
-
-ENTRYPOINT ["/usr/bin/go-template"]
+ENTRYPOINT ["/external-dns-provider"]

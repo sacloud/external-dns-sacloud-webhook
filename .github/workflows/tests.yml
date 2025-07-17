@@ -1,7 +1,11 @@
 name: Tests
-on: [push, pull_request]
+
+on:
+  pull_request
+
 env:
   GOPROXY: https://proxy.golang.org
+
 jobs:
   lint-text:
     name: lint-text
@@ -41,7 +45,7 @@ jobs:
           go-version-file: 'go.mod'
 
       - name: Setup tools
-        run: | 
+        run: |
           make tools
 
       - name: make lint-go
@@ -71,7 +75,7 @@ jobs:
           go-version-file: 'go.mod'
 
       - name: Setup tools
-        run: | 
+        run: |
           make tools
 
       - name: make test

@@ -1,82 +1,65 @@
-before:
-  hooks:
-    - go mod tidy
+version: 2
+
+project_name: external-dns-sacloud-webhook
+
 builds:
-  - env:
+  - id: webhook
+    binary: external-dns-sacloud-webhook
+    main: ./cmd/webhook
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    env:
       - CGO_ENABLED=0
     ldflags:
       - -s -w
-      - -X github.com/sacloud/go-template/version.Revision={{.ShortCommit}}
-    goos:
-      - windows
-      - linux
-      - darwin
-    goarch:
-      - amd64
-      - '386'
-      - arm
-      - arm64
-    ignore:
-      - goos: darwin
-        goarch: '386'
-      - goos: darwin
-        goarch: arm
-      - goos: windows
-        goarch: arm
-      - goos: windows
-        goarch: arm64
-    binary: '{{ .ProjectName }}'
-archives:
-  - format: zip
-    name_template: '{{ .ProjectName }}_{{ .Os }}-{{ .Arch }}'
-changelog:
-  skip: false
-  filters:
-    exclude:
-      - '^docs:'
+      - -X main.Version={{ .Version }}
+      - -X main.GitSha={{ .Commit }}
 
-#---
-# 以下は必要に応じて
-#---
+dockers:
+  - id: docker-amd64
+    use: buildx
+    goarch: amd64
+    image_templates:
+      - dockerrc.sakuracr.jp/external-dns-sacloud-webhook:amd64-{{ .Tag }}
+      - dockerrc.sakuracr.jp/external-dns-sacloud-webhook:amd64-latest
+      - ghcr.io/sacloud/external-dns-sacloud-webhook:amd64-{{ .Tag }}
+      - ghcr.io/sacloud/external-dns-sacloud-webhook:amd64-latest
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--platform=linux/amd64"
 
-#checksum:
-#  name_template: '{{ .ProjectName }}_SHA256SUMS'
-#  algorithm: sha256
+  - id: docker-arm64
+    use: buildx
+    goarch: arm64
+    image_templates:
+      - dockerrc.sakuracr.jp/external-dns-sacloud-webhook:arm64-{{ .Tag }}
+      - dockerrc.sakuracr.jp/external-dns-sacloud-webhook:arm64-latest
+      - ghcr.io/sacloud/external-dns-sacloud-webhook:arm64-{{ .Tag }}
+      - ghcr.io/sacloud/external-dns-sacloud-webhook:arm64-latest
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--platform=linux/arm64"
 
-#signs:
-#  - artifacts: checksum
-#    args:
-#      - "--local-user"
-#      - "E37EC0B895A9AC27DC4919AB96CEB4B93D86849D"
-#      - "--output"
-#      - "${signature}"
-#      - "--detach-sign"
-#      - "${artifact}"
-#      -
+docker_manifests:
+  - name_template: dockerrc.sakuracr.jp/external-dns-sacloud-webhook:{{ .Tag }}
+    image_templates:
+      - dockerrc.sakuracr.jp/external-dns-sacloud-webhook:amd64-{{ .Tag }}
+      - dockerrc.sakuracr.jp/external-dns-sacloud-webhook:arm64-{{ .Tag }}
 
-#release:
-#  draft: true
+  - name_template: dockerrc.sakuracr.jp/external-dns-sacloud-webhook:latest
+    image_templates:
+      - dockerrc.sakuracr.jp/external-dns-sacloud-webhook:amd64-latest
+      - dockerrc.sakuracr.jp/external-dns-sacloud-webhook:arm64-latest
 
-#nfpms:
-#  - homepage: https://docs.usacloud.jp/go-template
-#    file_name_template: "{{ .ProjectName }}_{{ .Os }}-{{ .Arch }}"
-#    maintainer: Usacloud <sacloud.users@gmail.com>
-#    description: CLI to manage to resources on the SAKURA Cloud
-#    license: Apache 2.0
-#    formats:
-#      - deb
-#      - rpm
+  - name_template: ghcr.io/sacloud/external-dns-sacloud-webhook:{{ .Tag }}
+    image_templates:
+      - ghcr.io/sacloud/external-dns-sacloud-webhook:amd64-{{ .Tag }}
+      - ghcr.io/sacloud/external-dns-sacloud-webhook:arm64-{{ .Tag }}
 
-#brews:
-#  - tap:
-#      owner: sacloud
-#      name: homebrew-go-template
-#      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
-#    url_template: "https://github.com/sacloud/go-template/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-#    commit_author:
-#      name: sacloud-bot
-#      email: sacloud.users@gmail.com
-#    homepage: "https://github.com/sacloud/go-template"
-#    license: "Apache 2.0"
-#    test: |
-#      system "#{bin}/go-template --version"
+  - name_template: ghcr.io/sacloud/external-dns-sacloud-webhook:latest
+    image_templates:
+      - ghcr.io/sacloud/external-dns-sacloud-webhook:amd64-latest
+      - ghcr.io/sacloud/external-dns-sacloud-webhook:arm64-latest

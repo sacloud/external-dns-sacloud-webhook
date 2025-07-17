@@ -1,4 +1,4 @@
-// Copyright 2022-2025 The sacloud/go-template Authors
+// Copyright 2025- The sacloud/external-dns-sacloud-webhook authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package handler
 
-import (
-	"fmt"
+import "github.com/sacloud/external-dns-sacloud-webhook/internal/provider"
 
-	"github.com/sacloud/go-template/version"
-)
-
-func main() {
-	fmt.Println("ALEA IACTA EST")
-	fmt.Println("version", version.FullVersion())
+// To enable dependency injection, handlers use interface-based programming instead of concrete types.
+type Provider interface {
+	ListRecords() ([]provider.Record, error)
+	ApplyChanges(create, delete []provider.Record) error
+	GetZoneName() string
 }

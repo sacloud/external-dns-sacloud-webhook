@@ -49,4 +49,3 @@ git subtree pull --prefix=includes --squash makefile v0.0.8
 `sacloud/makefile` Copyright (C) 2022-2023 The sacloud/makefile Authors.
 
 This project is published under [Apache 2.0 License](LICENSE).
-

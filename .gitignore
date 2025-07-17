@@ -1,5 +1,11 @@
+*.json
+*.bk
+helm-release.yml
+docker-build.yml
+.DS_Store
 .env
 vendor/
 dist/
 work/
 go-template
+chart/
