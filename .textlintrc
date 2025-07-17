@@ -18,6 +18,7 @@
       "max-comma": {
         "max": 4
       },
+      "no-unmatched-pair": false
     }
   }
 }
