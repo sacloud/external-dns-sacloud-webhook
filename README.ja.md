@@ -16,7 +16,7 @@
 
 ExternalDNS は Kubernetes リソースの DNS レコード管理を自動化するプラグインです。デフォルトでは Kubernetes はクラスター内部の DNS のみを扱いますが、ExternalDNS は外部の DNS プロバイダー（例：SakuraCloud、AWS Route 53、など）にレコードの同期を委任します。
 
-本プロジェクトは SakuraCloud 向けの **Webhook プロバイダー** を実装しており、ExternalDNS が標準化された webhook 経由で SakuraCloud DNS ゾーンを管理できるようにします。公式の [ExternalDNS Webhook Provider 仕様](https://kubernetes-sigs.github.io/external-dns/v0.14.2/tutorials/webhook-provider) に完全準拠し、[既存の ExternalDNS](https://github.com/kubernetes-sigs/external-dns) デプロイメントにシームレスに統合でき、将来のコミュニティドリブンな機能追加にも対応します。
+本プロジェクトは SakuraCloud 向けの **Webhook プロバイダー** を実装しており、ExternalDNS が標準化された webhook 経由で SakuraCloud DNS ゾーンを管理できるようにします。公式の [ExternalDNS Webhook Provider 仕様](https://kubernetes-sigs.github.io/external-dns/v0.14.2/tutorials/webhook-provider) に完全準拠し、[既存の ExternalDNS](https://github.com/kubernetes-sigs/external-dns) デプロイメントにシームレスへ統合でき、将来のコミュニティドリブンな機能追加にも対応します。
 
 > [!IMPORTANT]
 > **アップグレードパスがこのセクションで示されている場合**、バージョンを飛ばさずに必ず順番に**適用**してください！これを無視すると、一貫性の欠如やエラーが発生する可能性があります。
