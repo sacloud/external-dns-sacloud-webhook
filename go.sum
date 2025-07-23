@@ -86,6 +86,8 @@ github.com/sacloud/iaas-api-go v1.16.0 h1:JUj7f5yHSSakhy0N8qsZ0a5IYpbUgsv4x5rN8p
 github.com/sacloud/iaas-api-go v1.16.0/go.mod h1:8BTuDTCTT6Ie08544+q5hT3GMyTf2DDxzt/XMuwmhgk=
 github.com/sacloud/iaas-service-go v1.12.0 h1:NMgT+ysSyUWQ30QMjK2RhoQx026VRa558u1aWwJsmrU=
 github.com/sacloud/iaas-service-go v1.12.0/go.mod h1:CjsQdN1z4HenfKgEwK8+HGLTCVkmlyoRN2ivqyXJNB4=
+github.com/sacloud/iaas-service-go v1.12.1 h1:zI6w+5svvZ+EVKNbAvT/PhfHz7VklbeWikex+KJ9ADM=
+github.com/sacloud/iaas-service-go v1.12.1/go.mod h1:CjsQdN1z4HenfKgEwK8+HGLTCVkmlyoRN2ivqyXJNB4=
 github.com/sacloud/packages-go v0.0.11 h1:hrRWLmfPM9w7GBs6xb5/ue6pEMl8t1UuDKyR/KfteHo=
 github.com/sacloud/packages-go v0.0.11/go.mod h1:XNF5MCTWcHo9NiqWnYctVbASSSZR3ZOmmQORIzcurJ8=
 github.com/sagikazarmark/locafero v0.7.0 h1:5MqpDsTGNDhY8sGp0Aowyf0qKsPrhewaLSsFaodPcyo=

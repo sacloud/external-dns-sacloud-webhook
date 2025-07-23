@@ -41,7 +41,7 @@ require (
 
 require (
 	github.com/sacloud/iaas-api-go v1.16.0
-	github.com/sacloud/iaas-service-go v1.12.0
+	github.com/sacloud/iaas-service-go v1.12.1
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1
 	sigs.k8s.io/external-dns v0.18.0
