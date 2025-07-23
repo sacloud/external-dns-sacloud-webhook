@@ -71,14 +71,14 @@ func main() {
 		},
 	}
 
-	root.Flags().StringVar(&cfgFile, "config", "", "path to config file (env: WEBHOOK_CONFIG)")
+	root.Flags().StringVar(&cfgFile, "config", "", "path to config file")
 	root.Flags().String("sakura-api-token", "", "SakuraCloud API token")
 	root.Flags().String("sakura-api-secret", "", "SakuraCloud API secret")
 	root.Flags().String("provider-ip", "0.0.0.0", "Webhook listen host")
 	root.Flags().String("provider-port", "8080", "Webhook listen port")
 	root.Flags().Bool("registry-txt", false, "Enable TXT registry mode")
 	root.Flags().String("txt-owner-id", "default", "TXT owner ID for registry mode")
-	root.Flags().String("zone-name", "", "DNS zone name (env: WEBHOOK_ZONE_NAME)")
+	root.Flags().String("zone-name", "", "DNS zone name")
 
 	if err := viper.BindPFlag("sakura-api-token", root.Flags().Lookup("sakura-api-token")); err != nil {
 		log.Fatalf("failed to bind --sakura-api-token flag: %v", err)
