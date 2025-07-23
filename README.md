@@ -164,7 +164,7 @@ sequenceDiagram
 
 ## License
 
-`external-dns-sacloud-webhook` Copyright (C) 2025- The sacloud/external-dns-sacloud-webhook authors.
+`external-dns-sacloud-webhook` Copyright (C) 2025- The [sacloud/external-dns-sacloud-webhook authors](AUTHORS).
 This project is published under [Apache 2.0 License](LICENSE).
 
 ---
