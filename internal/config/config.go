@@ -15,11 +15,11 @@
 package config
 
 type Config struct {
-	Token       string
-	Secret      string
-	ProviderURL string
-	Port        string
-	ZoneName    string
-	RegistryTXT bool
-	TxtOwnerID  string
+    SakuraApiToken string `mapstructure:"sakura-api-token"`
+    SakuraApiSecret string `mapstructure:"sakura-api-secret"`
+    ProviderIP string `mapstructure:"provider-ip"`
+    ProviderPort string `mapstructure:"provider-port"`
+    ZoneName string `mapstructure:"zone-name"`
+    RegistryTXT bool `mapstructure:"registry-txt"`
+    TxtOwnerID  string `mapstructure:"txt-owner-id"`
 }

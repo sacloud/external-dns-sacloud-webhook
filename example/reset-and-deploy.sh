@@ -2,10 +2,10 @@
 set -euo pipefail
 
 # 0. Required env vars for local testing
-export TOKEN="xxx"
-export SECRET="xxx"
-export ZONE="example.com"
-export PROVIDER_HOST="0.0.0.0"
+export SAKURA_API_TOKEN="xxx"
+export SAKURA_API_SECRET="xxx"
+export ZONE_NAME="example.com"
+export PROVIDER_IP="0.0.0.0"
 export PROVIDER_PORT="8080"
 export TXT_OWNER_ID="default"
 
@@ -34,8 +34,8 @@ metadata:
   name: external-dns-webhook-credentials
 type: Opaque
 stringData:
-  token:      "${TOKEN}"
-  secret:     "${SECRET}"
+  sakura-api-token: "${SAKURA_API_TOKEN}"
+  sakura-api-secret: "${SAKURA_API_SECRET}"
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -43,11 +43,11 @@ metadata:
   name: external-dns-webhook-config
 data:
   config.yaml: |
-    providerURL:  "${PROVIDER_HOST}"
-    port:         "${PROVIDER_PORT}"
-    zoneName:     "${ZONE}"
-    registryTXT:  true
-    txtOwnerID:   "${TXT_OWNER_ID}"
+    provider-ip:   "${PROVIDER_IP}"
+    provider-port: "${PROVIDER_PORT}"
+    zone-name:     "${ZONE_NAME}"
+    registry-txt:  true
+    txt-owner-id:  "${TXT_OWNER_ID}"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -67,20 +67,20 @@ spec:
         - name: external-dns-provider
           image: dockerrc.sakuracr.jp/external-dns-sacloud-webhook:latest
           args:
-            - "--token=\$(TOKEN)"
-            - "--secret=\$(SECRET)"
+            - "--sakura-api-token=\$(SAKURA_API_TOKEN)"
+            - "--sakura-api-secret=\$(SAKURA_API_SECRET)"
             - "--config=/etc/config/config.yaml"
           env:
-            - name: TOKEN
+            - name: SAKURA_API_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: external-dns-webhook-credentials
-                  key: token
-            - name: SECRET
+                  key: sakura-api-token
+            - name: SAKURA_API_SECRET
               valueFrom:
                 secretKeyRef:
                   name: external-dns-webhook-credentials
-                  key: secret
+                  key: sakura-api-secret
             - name: WEBHOOK_CONFIG
               value: "/etc/config/config.yaml"
           volumeMounts:
@@ -174,8 +174,8 @@ spec:
             - --log-level=debug
             - --source=ingress
             - --provider=webhook
-            - --webhook-provider-url=http://external-dns-provider.default.svc.cluster.local:${PROVIDER_PORT}
-            - --domain-filter=${ZONE}
+            - --webhook-provider-ip=http://external-dns-provider.default.svc.cluster.local:${PROVIDER_PORT}
+            - --domain-filter=${ZONE_NAME}
             - --registry=txt
             - --txt-prefix=_external-dns.
             - --txt-owner-id=${TXT_OWNER_ID}
@@ -231,7 +231,7 @@ metadata:
     external-dns.alpha.kubernetes.io/managed: "true"
 spec:
   rules:
-    - host: test.${ZONE}
+    - host: test.${ZONE_NAME}
       http:
         paths:
           - path: /
@@ -256,7 +256,7 @@ metadata:
     external-dns.alpha.kubernetes.io/ttl: "120"
 spec:
   rules:
-    - host: cname-test.${ZONE}
+    - host: cname-test.${ZONE_NAME}
       http:
         paths:
           - path: /
@@ -281,7 +281,7 @@ metadata:
     external-dns.alpha.kubernetes.io/ttl: "10"
 spec:
   rules:
-    - host: alias-test.${ZONE}
+    - host: alias-test.${ZONE_NAME}
       http:
         paths:
           - path: /

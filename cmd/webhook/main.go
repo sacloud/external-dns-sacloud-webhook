@@ -72,40 +72,55 @@ func main() {
 	}
 
 	root.Flags().StringVar(&cfgFile, "config", "", "path to config file (env: WEBHOOK_CONFIG)")
-	root.Flags().String("token", "", "SakuraCloud API token")
-	root.Flags().String("secret", "", "SakuraCloud API secret")
-	root.Flags().String("provider-url", "0.0.0.0", "Webhook listen host")
-	root.Flags().String("port", "8080", "Webhook listen port")
+	root.Flags().String("sakura-api-token", "", "SakuraCloud API token")
+	root.Flags().String("sakura-api-secret", "", "SakuraCloud API secret")
+	root.Flags().String("provider-ip", "0.0.0.0", "Webhook listen host")
+	root.Flags().String("provider-port", "8080", "Webhook listen port")
 	root.Flags().Bool("registry-txt", false, "Enable TXT registry mode")
 	root.Flags().String("txt-owner-id", "default", "TXT owner ID for registry mode")
 	root.Flags().String("zone-name", "", "DNS zone name (env: WEBHOOK_ZONE_NAME)")
 
-	if err := viper.BindPFlag("token", root.Flags().Lookup("token")); err != nil {
-		log.Fatalf("failed to bind --token flag: %v", err)
+	if err := viper.BindPFlag("sakura-api-token", root.Flags().Lookup("sakura-api-token")); err != nil {
+		log.Fatalf("failed to bind --sakura-api-token flag: %v", err)
 	}
-	if err := viper.BindPFlag("secret", root.Flags().Lookup("secret")); err != nil {
-		log.Fatalf("failed to bind --secret flag: %v", err)
+	if err := viper.BindPFlag("sakura-api-secret", root.Flags().Lookup("sakura-api-secret")); err != nil {
+		log.Fatalf("failed to bind --sakura-api-secret flag: %v", err)
 	}
-	if err := viper.BindPFlag("providerURL", root.Flags().Lookup("provider-url")); err != nil {
-		log.Fatalf("failed to bind --provider-url flag: %v", err)
+	if err := viper.BindPFlag("provider-ip", root.Flags().Lookup("provider-ip")); err != nil {
+		log.Fatalf("failed to bind --provider-ip flag: %v", err)
 	}
-	if err := viper.BindPFlag("port", root.Flags().Lookup("port")); err != nil {
-		log.Fatalf("failed to bind --port flag: %v", err)
+	if err := viper.BindPFlag("provider-port", root.Flags().Lookup("provider-port")); err != nil {
+		log.Fatalf("failed to bind --provider-port flag: %v", err)
 	}
-	if err := viper.BindPFlag("registryTXT", root.Flags().Lookup("registry-txt")); err != nil {
+	if err := viper.BindPFlag("registry-txt", root.Flags().Lookup("registry-txt")); err != nil {
 		log.Fatalf("failed to bind --registry-txt flag: %v", err)
 	}
-	if err := viper.BindPFlag("txtOwnerID", root.Flags().Lookup("txt-owner-id")); err != nil {
+	if err := viper.BindPFlag("txt-owner-id", root.Flags().Lookup("txt-owner-id")); err != nil {
 		log.Fatalf("failed to bind --txt-owner-id flag: %v", err)
 	}
-	if err := viper.BindPFlag("zoneName", root.Flags().Lookup("zone-name")); err != nil {
+	if err := viper.BindPFlag("zone-name", root.Flags().Lookup("zone-name")); err != nil {
 		log.Fatalf("failed to bind --zone-name flag: %v", err)
 	}
 
-	if err := viper.BindEnv("config", "WEBHOOK_CONFIG"); err != nil {
-		log.Fatalf("failed to bind env WEBHOOK_CONFIG: %v", err)
+	if err := viper.BindEnv("sakura-api-token", "WEBHOOK_SAKURA_API_TOKEN"); err != nil {
+		log.Fatalf("failed to bind env WEBHOOK_SAKURA_API_TOKEN: %v", err)
 	}
-	if err := viper.BindEnv("zoneName", "WEBHOOK_ZONE_NAME"); err != nil {
+	if err := viper.BindEnv("sakura-api-secret", "WEBHOOK_SAKURA_API_SECRET"); err != nil {
+		log.Fatalf("failed to bind env WEBHOOK_SAKURA_API_SECRET: %v", err)
+	}
+	if err := viper.BindEnv("provider-ip", "WEBHOOK_PROVIDER_IP"); err != nil {
+		log.Fatalf("failed to bind env WEBHOOK_PROVIDER_IP: %v", err)
+	}
+	if err := viper.BindEnv("provider-port", "WEBHOOK_PROVIDER_PORT"); err != nil {
+		log.Fatalf("failed to bind env WEBHOOK_PROVIDER_PORT: %v", err)
+	}
+	if err := viper.BindEnv("registry-txt", "WEBHOOK_REGISTRY_TXT"); err != nil {
+		log.Fatalf("failed to bind env WEBHOOK_REGISTRY_TXT: %v", err)
+	}
+	if err := viper.BindEnv("txt-owner-id", "WEBHOOK_TXT_OWNER_ID"); err != nil {
+		log.Fatalf("failed to bind env WEBHOOK_TXT_OWNER_ID: %v", err)
+	}
+	if err := viper.BindEnv("zone-name", "WEBHOOK_ZONE_NAME"); err != nil {
 		log.Fatalf("failed to bind env WEBHOOK_ZONE_NAME: %v", err)
 	}
 
