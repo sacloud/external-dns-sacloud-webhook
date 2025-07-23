@@ -77,7 +77,8 @@ func (c *Client) ApplyChanges(create, del []Record) error {
 	for _, rs := range dnsZone.Records {
 		shouldDelete := false
 		for _, dRec := range del {
-			if string(rs.Type) == dRec.Type && rs.Name == dRec.Name {
+			// Compare Type, Name, and RData (Targets[0]) for precise deletion
+			if string(rs.Type) == dRec.Type && rs.Name == dRec.Name && rs.RData == dRec.Targets[0] {
 				log.Printf("Deleting record: %s %s -> %v", dRec.Type, dRec.Name, dRec.Targets)
 				shouldDelete = true
 				break

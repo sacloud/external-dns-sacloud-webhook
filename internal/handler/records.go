@@ -44,41 +44,32 @@ func RecordsHandler(client Provider) http.HandlerFunc {
 
 		zoneSuffix := "." + client.GetZoneName()
 
-		var endpoints []*endpoint.Endpoint
+		endpoints := []*endpoint.Endpoint{}
 		for _, rec := range records {
 			fqdn := rec.Name
 			if !strings.HasSuffix(fqdn, zoneSuffix) {
 				fqdn += zoneSuffix
 			}
 
-			// Map SakuraCloud ALIAS into CNAME + alias flag
 			epType := rec.Type
+			providerSpecific := []endpoint.ProviderSpecificProperty{}
 			if rec.Type == "ALIAS" {
 				epType = "CNAME"
+				providerSpecific = append(providerSpecific, endpoint.ProviderSpecificProperty{
+					Name:  "alias",
+					Value: "true",
+				})
 			}
 
 			ep := &endpoint.Endpoint{
-				DNSName:    fqdn,
-				Targets:    rec.Targets,
-				RecordType: epType,
-				RecordTTL:  endpoint.TTL(rec.TTL),
-			}
-
-			// If original was ALIAS, attach providerSpecific alias=true
-			if rec.Type == "ALIAS" {
-				ep.ProviderSpecific = append(ep.ProviderSpecific,
-					endpoint.ProviderSpecificProperty{
-						Name:  "alias",
-						Value: "true",
-					},
-				)
+				DNSName:          fqdn,
+				Targets:          rec.Targets,
+				RecordType:       epType,
+				RecordTTL:        endpoint.TTL(rec.TTL),
+				ProviderSpecific: providerSpecific,
 			}
 
 			endpoints = append(endpoints, ep)
-		}
-
-		if endpoints == nil {
-			endpoints = []*endpoint.Endpoint{}
 		}
 
 		w.Header().Set("Content-Type", "application/external.dns.webhook+json;version=1")

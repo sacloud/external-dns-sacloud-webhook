@@ -159,6 +159,7 @@ sequenceDiagram
 
 - Only supports A, CNAME, & TXT record types
 - Currently SakuraCloud does not support AAAA or MX via this webhook
+- SakuraCloud DNS API only supports a single target (RData) per DNS record. Multiple targets (e.g. multiple A or TXT values for the same name) are not supported; each must be a separate record.
 
 ## License
 
