@@ -179,6 +179,9 @@ spec:
             - --registry=txt
             - --txt-prefix=_external-dns.
             - --txt-owner-id=${TXT_OWNER_ID}
+            - --interval=30s
+            - --events
+            - --min-event-sync-interval=10s
             - --policy=sync
             - --annotation-filter=external-dns.alpha.kubernetes.io/managed=true
 EOF
@@ -249,7 +252,6 @@ metadata:
   name: cname-test-ingress
   annotations:
     external-dns.alpha.kubernetes.io/target: "test.example.com."
-    external-dns.alpha.kubernetes.io/record-type: "CNAME"
     external-dns.alpha.kubernetes.io/managed: "true"
     external-dns.alpha.kubernetes.io/ttl: "120"
 spec:
@@ -273,9 +275,9 @@ kind: Ingress
 metadata:
   name: alias-test-ingress
   annotations:
-    external-dns.alpha.kubernetes.io/target: "test.example.com."
-    external-dns.alpha.kubernetes.io/record-type: "ALIAS"
     external-dns.alpha.kubernetes.io/managed: "true"
+    external-dns.alpha.kubernetes.io/alias:   "true"
+    external-dns.alpha.kubernetes.io/target: "test.example.com."
     external-dns.alpha.kubernetes.io/ttl: "10"
 spec:
   rules:
