@@ -157,8 +157,10 @@ sequenceDiagram
 ## 制限事項
 
 - A、CNAME、および TXT レコードタイプのみをサポート
-- 現在、この webhook では SakuraCloud の AAAA および MX レコードはサポートされていません
-- SakuraCloud DNS API は 1 レコードにつき 1 つのターゲット (RData) のみをサポートしています。同じ名前・タイプで複数の値 (A/TXT など) を登録することはできません。複数値が必要な場合は、レコードを分割して登録してください。
+- 現在、この webhook では SakuraCloud の AAAA および MX レコードはサポートされていない
+- SakuraCloud DNS API は 1 レコードにつき 1 つのターゲット (RData) のみをサポートしている
+- 同じ名前・タイプで複数の値 (A/TXT など) を登録することはできない
+- 複数値が必要な場合は、レコードを分割して登録してください
 
 ## License
 
