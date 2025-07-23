@@ -66,7 +66,7 @@ ExternalDNS は Kubernetes リソースの DNS レコード管理を自動化す
 | `--provider-port`         | `PROVIDER_PORT`         | Webhook リッスンポート                         | No  | `8080`    |
 | `--registry-txt` |                        | TXT レジストリモードを有効化                        | No  | `false`   |
 | `--txt-owner-id` |                        | TXT レジストリのオーナー ID                       | No  | `default` |
-| `--config`         | `CONFIG_FILE_PATH`         | 設定ファイルのパス (YAML形式)                     | No  | `config.yaml` |
+| `--config`         | `CONFIG_FILE_PATH`         | 設定ファイルのパス (YAML形式)                     | No  |  |
 ### 2. デプロイメント
 
 #### 2-1. クイックデプロイスクリプト
