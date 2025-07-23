@@ -32,6 +32,60 @@ type ChangeRequest struct {
 	Delete []*endpoint.Endpoint `json:"delete"`
 }
 
+// convertEndpoints converts []*endpoint.Endpoint to []provider.Record.
+func convertEndpoints(endpoints []*endpoint.Endpoint, zoneSuffix, txtPrefix string) []provider.Record {
+	var records []provider.Record
+	for _, e := range endpoints {
+		var recType string
+		if e.RecordType == "TXT" && strings.HasPrefix(e.DNSName, txtPrefix) {
+			// Always treat registry entries as TXT
+			recType = "TXT"
+		} else {
+			// Otherwise, honor provided type and alias flag
+			recType = e.RecordType
+			if recType == "CNAME" {
+				for _, ps := range e.ProviderSpecific {
+					if ps.Name == "alias" && ps.Value == "true" {
+						recType = "ALIAS"
+						break
+					}
+				}
+			}
+		}
+
+		name := strings.TrimSuffix(e.DNSName, zoneSuffix)
+
+		var targets []string
+		for _, t := range e.Targets {
+			switch recType {
+			case "TXT":
+				// Remove surrounding quotes for TXT
+				t = strings.Trim(t, "\"")
+			case "CNAME", "ALIAS":
+				// External-DNS will default to remove trailing dot
+				// but we must ensure it ends with a dot for CNAME/ALIAS in SakuraCloud
+				if !strings.HasSuffix(t, ".") {
+					t += "."
+				}
+			}
+			targets = append(targets, t)
+		}
+
+		ttl := 3600
+		if e.RecordTTL > 0 {
+			ttl = int(e.RecordTTL)
+		}
+
+		records = append(records, provider.Record{
+			Type:    recType,
+			Name:    name,
+			Targets: targets,
+			TTL:     ttl,
+		})
+	}
+	return records
+}
+
 // ApplyHandler handles POST /records calls.
 // It converts endpoint.Endpoints into provider.Record entries,
 // strips the zone suffix from names, handles TXT quoting,
@@ -67,103 +121,8 @@ func ApplyHandler(client Provider) http.HandlerFunc {
 		// TXT registry prefix
 		txtPrefix := "_external-dns."
 
-		// Build list of records to create
-		var toCreate []provider.Record
-		for _, e := range req.Create {
-			var recType string
-			if e.RecordType == "TXT" && strings.HasPrefix(e.DNSName, txtPrefix) {
-				// Always treat registry entries as TXT
-				recType = "TXT"
-			} else {
-				// Otherwise, honor provided type and alias flag
-				recType = e.RecordType
-				if recType == "CNAME" {
-					for _, ps := range e.ProviderSpecific {
-						if ps.Name == "alias" && ps.Value == "true" {
-							recType = "ALIAS"
-							break
-						}
-					}
-				}
-			}
-
-			name := e.DNSName
-			name = strings.TrimSuffix(name, zoneSuffix)
-
-			var targets []string
-			for _, t := range e.Targets {
-				switch recType {
-				case "TXT":
-					// Remove surrounding quotes for TXT
-					t = strings.Trim(t, "\"")
-				case "CNAME", "ALIAS":
-					// External-DNS will default to remove trailing dot
-					// but we must ensure it ends with a dot for CNAME/ALIAS in SakuraCloud
-					if !strings.HasSuffix(t, ".") {
-						t += "."
-					}
-				}
-				targets = append(targets, t)
-			}
-
-			ttl := 3600
-			if e.RecordTTL > 0 {
-				ttl = int(e.RecordTTL)
-			}
-
-			toCreate = append(toCreate, provider.Record{
-				Type:    recType,
-				Name:    name,
-				Targets: targets,
-				TTL:     ttl,
-			})
-		}
-
-		var toDelete []provider.Record
-		for _, e := range req.Delete {
-			var recType string
-			if e.RecordType == "TXT" && strings.HasPrefix(e.DNSName, txtPrefix) {
-				recType = "TXT"
-			} else {
-				recType = e.RecordType
-				if recType == "CNAME" {
-					for _, ps := range e.ProviderSpecific {
-						if ps.Name == "alias" && ps.Value == "true" {
-							recType = "ALIAS"
-							break
-						}
-					}
-				}
-			}
-
-			name := e.DNSName
-			name = strings.TrimSuffix(name, zoneSuffix)
-
-			var targets []string
-			for _, t := range e.Targets {
-				switch recType {
-				case "TXT":
-					t = strings.Trim(t, "\"")
-				case "CNAME", "ALIAS":
-					if !strings.HasSuffix(t, ".") {
-						t += "."
-					}
-				}
-				targets = append(targets, t)
-			}
-
-			ttl := 3600
-			if e.RecordTTL > 0 {
-				ttl = int(e.RecordTTL)
-			}
-
-			toDelete = append(toDelete, provider.Record{
-				Type:    recType,
-				Name:    name,
-				Targets: targets,
-				TTL:     ttl,
-			})
-		}
+		toCreate := convertEndpoints(req.Create, zoneSuffix, txtPrefix)
+		toDelete := convertEndpoints(req.Delete, zoneSuffix, txtPrefix)
 
 		log.Printf("[ApplyHandler] create count: %d, delete count: %d", len(toCreate), len(toDelete))
 
