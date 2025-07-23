@@ -57,13 +57,14 @@ Download pre-built binaries or Docker images from [Releases](https://github.com/
 
 | Flag             | Env Var                | Description                               | Required | Default   |
 | ---------------- | ---------------------- | ----------------------------------------- | -------- | --------- |
-| `--zone-name`    | `WEBHOOK_ZONE_NAME`    | SakuraCloud DNS zone (e.g. `example.com`) | Yes      |           |
-| `--token`        | `WEBHOOK_TOKEN`        | SakuraCloud API Token                     | Yes      |           |
-| `--secret`       | `WEBHOOK_SECRET`       | SakuraCloud API Secret                    | Yes      |           |
-| `--provider-url` | `WEBHOOK_PROVIDER_URL` | Webhook listen address                    | No       | `0.0.0.0` |
-| `--port`         | `WEBHOOK_PORT`         | Webhook listen port                       | No       | `8080`    |
+| `--sakura-api-token`        | `SAKURA_API_TOKEN`        | SakuraCloud API Token                     | Yes      |           |
+| `--sakura-api-secret`       | `SAKURA_API_SECRET`       | SakuraCloud API Secret                    | Yes      |           |
+| `--zone-name`    | `ZONE_NAME`    | SakuraCloud DNS zone (e.g. `example.com`) | Yes      |           |
+| `--provider-ip` | `PROVIDER_IP` | Webhook listen address                    | No       | `0.0.0.0` |
+| `--provider-port`         | `PROVIDER_PORT`         | Webhook listen port                       | No       | `8080`    |
 | `--registry-txt` |                        | Enable TXT registry mode                  | No       | `false`   |
 | `--txt-owner-id` |                        | TXT registry owner ID                     | No       | `default` |
+| `--config`         | `CONFIG_FILE_PATH`         | Path to configuration file (YAML format)  | No       | `config.yaml` |
 
 ### 2. Deployment
 

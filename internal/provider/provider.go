@@ -107,6 +107,7 @@ func (c *Client) ApplyChanges(create, del []Record) error {
 	updateReq := &dns.UpdateRequest{
 		ID:      c.ZoneID,
 		Records: newSets,
+		SettingsHash: dnsZone.SettingsHash, // Preserve existing settings hash
 	}
 	if _, err := c.Service.UpdateWithContext(ctx, updateReq); err != nil {
 		log.Printf("Error applying DNS changes: %v", err)

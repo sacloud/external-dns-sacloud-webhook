@@ -81,7 +81,7 @@ func Run(cfg config.Config) {
 	log.Printf("[Server] Using DNS zone: %s", cfg.ZoneName)
 
 	log.Printf("[Server] Initializing SakuraCloud DNS client")
-	client, err := provider.NewClient(cfg.ZoneName, cfg.Token, cfg.Secret)
+	client, err := provider.NewClient(cfg.ZoneName, cfg.SakuraApiToken, cfg.SakuraApiSecret)
 	if err != nil {
 		log.Fatalf("[Server] Failed to create SakuraCloud client: %v", err)
 	}
@@ -91,7 +91,7 @@ func Run(cfg config.Config) {
 	}
 
 	mux := NewMux(client, cfg)
-	addr := fmt.Sprintf("%s:%s", cfg.ProviderURL, cfg.Port)
+	addr := fmt.Sprintf("%s:%s", cfg.ProviderIP, cfg.ProviderPort)
 	srv := &http.Server{
 		Addr:         addr,
 		Handler:      mux,

@@ -59,14 +59,14 @@ ExternalDNS は Kubernetes リソースの DNS レコード管理を自動化す
 
 | フラグ              | 環境変数                   | 説明                                      | 必須  | デフォルト     |
 | ---------------- | ---------------------- | --------------------------------------- | --- | --------- |
-| `--zone-name`    | `WEBHOOK_ZONE_NAME`    | SakuraCloud DNS ゾーン名 (例: `example.com`) | Yes |           |
-| `--token`        | `WEBHOOK_TOKEN`        | SakuraCloud API Token                   | Yes |           |
-| `--secret`       | `WEBHOOK_SECRET`       | SakuraCloud API Secret                  | Yes |           |
-| `--provider-url` | `WEBHOOK_PROVIDER_URL` | Webhook リッスンアドレス                        | No  | `0.0.0.0` |
-| `--port`         | `WEBHOOK_PORT`         | Webhook リッスンポート                         | No  | `8080`    |
+| `--sakura-api-token`        | `SAKURA_API_TOKEN`        | SakuraCloud API Token                   | Yes |           |
+| `--sakura-api-secret`       | `SAKURA_API_SECRET`       | SakuraCloud API Secret                  | Yes |           |
+| `--zone-name`    | `ZONE_NAME`    | SakuraCloud DNS ゾーン名 (例: `example.com`) | Yes |           |
+| `--provider-ip` | `PROVIDER_IP` | Webhook リッスンアドレス                        | No  | `0.0.0.0` |
+| `--provider-port`         | `PROVIDER_PORT`         | Webhook リッスンポート                         | No  | `8080`    |
 | `--registry-txt` |                        | TXT レジストリモードを有効化                        | No  | `false`   |
 | `--txt-owner-id` |                        | TXT レジストリのオーナー ID                       | No  | `default` |
-
+| `--config`         | `CONFIG_FILE_PATH`         | 設定ファイルのパス (YAML形式)                     | No  | `config.yaml` |
 ### 2. デプロイメント
 
 #### 2-1. クイックデプロイスクリプト
