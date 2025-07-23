@@ -174,7 +174,7 @@ spec:
             - --log-level=debug
             - --source=ingress
             - --provider=webhook
-            - --webhook-provider-ip=http://external-dns-provider.default.svc.cluster.local:${PROVIDER_PORT}
+            - --webhook-provider-url=http://external-dns-provider.default.svc.cluster.local:${PROVIDER_PORT}
             - --domain-filter=${ZONE_NAME}
             - --registry=txt
             - --txt-prefix=_external-dns.
