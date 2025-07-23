@@ -64,7 +64,7 @@ Download pre-built binaries or Docker images from [Releases](https://github.com/
 | `--provider-port`         | `PROVIDER_PORT`         | Webhook listen port                       | No       | `8080`    |
 | `--registry-txt` |                        | Enable TXT registry mode                  | No       | `false`   |
 | `--txt-owner-id` |                        | TXT registry owner ID                     | No       | `default` |
-| `--config`         | `CONFIG_FILE_PATH`         | Path to configuration file (YAML format)  | No       | `config.yaml` |
+| `--config`         | `CONFIG_FILE_PATH`         | Path to configuration file (YAML format)  | No       |  |
 
 ### 2. Deployment
 
