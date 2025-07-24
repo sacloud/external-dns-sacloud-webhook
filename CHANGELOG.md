@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.1.1](https://github.com/sacloud/external-dns-sacloud-webhook/compare/v0.1.0...v0.1.1) - 2025-07-24
+- Fix/timeout handler by @ippanpeople in https://github.com/sacloud/external-dns-sacloud-webhook/pull/15
+
 ## [v0.1.0](https://github.com/sacloud/external-dns-sacloud-webhook/compare/v0.0.3...v0.1.0) - 2025-07-23
 - add: dependabot config by @ippanpeople in https://github.com/sacloud/external-dns-sacloud-webhook/pull/8
 - chore(deps): bump github.com/go-viper/mapstructure/v2 from 2.2.1 to 2.3.0 by @dependabot[bot] in https://github.com/sacloud/external-dns-sacloud-webhook/pull/7
