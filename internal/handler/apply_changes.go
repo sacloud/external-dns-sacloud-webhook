@@ -126,7 +126,7 @@ func ApplyHandler(client Provider) http.HandlerFunc {
 
 		log.Printf("[ApplyHandler] create count: %d, delete count: %d", len(toCreate), len(toDelete))
 
-		if err := client.ApplyChanges(toCreate, toDelete); err != nil {
+		if err := client.ApplyChanges(r.Context(), toCreate, toDelete); err != nil {
 			log.Printf("[ApplyHandler] error applying changes: %v", err)
 			http.Error(w, "failed to apply DNS changes", http.StatusInternalServerError)
 			return

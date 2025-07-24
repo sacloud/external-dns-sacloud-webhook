@@ -81,8 +81,6 @@ spec:
                 secretKeyRef:
                   name: external-dns-webhook-credentials
                   key: sakura-api-secret
-            - name: WEBHOOK_CONFIG
-              value: "/etc/config/config.yaml"
           volumeMounts:
             - name: config
               mountPath: /etc/config

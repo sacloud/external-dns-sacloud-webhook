@@ -14,11 +14,15 @@
 
 package handler
 
-import "github.com/sacloud/external-dns-sacloud-webhook/internal/provider"
+import (
+	"context"
+
+	"github.com/sacloud/external-dns-sacloud-webhook/internal/provider"
+)
 
 // To enable dependency injection, handlers use interface-based programming instead of concrete types.
 type Provider interface {
-	ListRecords() ([]provider.Record, error)
-	ApplyChanges(create, delete []provider.Record) error
+	ListRecords(ctx context.Context) ([]provider.Record, error)
+	ApplyChanges(ctx context.Context, create, delete []provider.Record) error
 	GetZoneName() string
 }

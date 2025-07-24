@@ -16,6 +16,7 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -37,11 +38,11 @@ type fakeProvider struct {
 	applyErr error
 }
 
-func (f *fakeProvider) ListRecords() ([]provider.Record, error) {
+func (f *fakeProvider) ListRecords(ctx context.Context) ([]provider.Record, error) {
 	return f.records, f.listErr
 }
 
-func (f *fakeProvider) ApplyChanges(create, del []provider.Record) error {
+func (f *fakeProvider) ApplyChanges(ctx context.Context, create, del []provider.Record) error {
 	f.createIn = create
 	f.deleteIn = del
 	return f.applyErr
@@ -190,5 +191,39 @@ func TestApplyHandler_ProviderError(t *testing.T) {
 
 	if rr.Code != http.StatusInternalServerError {
 		t.Errorf("expected 500 Internal Server Error on provider error, got %d", rr.Code)
+	}
+}
+
+func TestRecordsHandler_ContextTimeout(t *testing.T) {
+	fake := &fakeProvider{
+		listErr: context.Canceled,
+	}
+	handler := RecordsHandler(fake)
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/records", nil)
+	handler(rr, req)
+
+	if rr.Code != http.StatusInternalServerError {
+		t.Errorf("expected 500 Internal Server Error on context canceled, got %d", rr.Code)
+	}
+}
+
+func TestApplyHandler_ContextTimeout(t *testing.T) {
+	fake := &fakeProvider{
+		applyErr: context.Canceled,
+	}
+	handler := ApplyHandler(fake)
+
+	cr := ChangeRequest{Create: nil, Delete: nil}
+	body, _ := json.Marshal(cr)
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/records", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/external.dns.webhook+json;version=1")
+	handler(rr, req)
+
+	if rr.Code != http.StatusInternalServerError {
+		t.Errorf("expected 500 Internal Server Error on context canceled, got %d", rr.Code)
 	}
 }
