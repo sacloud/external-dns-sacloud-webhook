@@ -41,14 +41,19 @@ func (f *fakeDNSService) Find(req *dns.FindRequest) ([]*iaas.DNS, error) {
 }
 
 func (f *fakeDNSService) ReadWithContext(ctx context.Context, req *dns.ReadRequest) (*iaas.DNS, error) {
-	return f.readResp, f.readErr
+    if ctx.Err() != nil {
+        return nil, ctx.Err()
+    }
+    return f.readResp, f.readErr
 }
 
 func (f *fakeDNSService) UpdateWithContext(ctx context.Context, req *dns.UpdateRequest) (*iaas.DNS, error) {
-	f.lastUpdateReq = req
-	return f.updateResp, f.updateErr
+    if ctx.Err() != nil {
+        return nil, ctx.Err()
+    }
+    f.lastUpdateReq = req
+    return f.updateResp, f.updateErr
 }
-
 func TestListRecords(t *testing.T) {
 	fake := &fakeDNSService{
 		readResp: &iaas.DNS{
@@ -77,7 +82,7 @@ func TestListRecords(t *testing.T) {
 		RequestTimeout: 5 * time.Second,
 	}
 
-	records, err := client.ListRecords()
+	records, err := client.ListRecords(context.Background())
 	if err != nil {
 		t.Fatalf("ListRecords() unexpected error: %v", err)
 	}
@@ -128,7 +133,7 @@ func TestApplyChanges(t *testing.T) {
 		{Name: "delAlias", Targets: []string{"a.target.com."}, Type: "ALIAS"},
 	}
 
-	if err := client.ApplyChanges(toCreate, toDelete); err != nil {
+	if err := client.ApplyChanges(context.Background(), toCreate, toDelete); err != nil {
 		t.Fatalf("ApplyChanges() unexpected error: %v", err)
 	}
 
@@ -177,8 +182,47 @@ func TestApplyChanges_Error(t *testing.T) {
 		RequestTimeout: 1 * time.Second,
 	}
 
-	err := client.ApplyChanges(nil, nil)
+	err := client.ApplyChanges(context.Background(), nil, nil)
 	if err == nil || err.Error() != "api failure" {
 		t.Errorf("ApplyChanges() error = %v; want \"api failure\"", err)
 	}
+}
+
+func TestListRecords_ContextTimeout(t *testing.T) {
+    fake := &fakeDNSService{
+        readResp: &iaas.DNS{ID: 1, Name: "z", Records: []*iaas.DNSRecord{}},
+    }
+    client := &Client{
+        Context:        context.Background(),
+        Service:        fake,
+        ZoneName:       "z",
+        ZoneID:         1,
+        RequestTimeout: 1 * time.Second,
+    }
+    ctx, cancel := context.WithCancel(context.Background())
+    cancel()
+    _, err := client.ListRecords(ctx)
+    if err == nil {
+        t.Errorf("ListRecords() should fail with canceled context")
+    }
+}
+
+func TestApplyChanges_ContextTimeout(t *testing.T) {
+    fake := &fakeDNSService{
+        readResp:  &iaas.DNS{ID: 1, Name: "z", Records: []*iaas.DNSRecord{}},
+        updateErr: nil,
+    }
+    client := &Client{
+        Context:        context.Background(),
+        Service:        fake,
+        ZoneName:       "z",
+        ZoneID:         1,
+        RequestTimeout: 1 * time.Second,
+    }
+    ctx, cancel := context.WithCancel(context.Background())
+    cancel()
+    err := client.ApplyChanges(ctx, nil, nil)
+    if err == nil {
+        t.Errorf("ApplyChanges() should fail with canceled context")
+    }
 }

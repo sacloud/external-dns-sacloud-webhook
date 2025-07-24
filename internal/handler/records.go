@@ -35,7 +35,7 @@ func RecordsHandler(client Provider) http.HandlerFunc {
 
 		log.Printf("[RecordsHandler] GET /records invoked")
 
-		records, err := client.ListRecords()
+		records, err := client.ListRecords(r.Context())
 		if err != nil {
 			log.Printf("[RecordsHandler] error listing records: %v", err)
 			http.Error(w, "failed to list DNS records", http.StatusInternalServerError)
