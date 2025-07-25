@@ -18,7 +18,6 @@ import (
 	"context"
 	"errors"
 	"log"
-	"time"
 
 	client "github.com/sacloud/api-client-go"
 	iaas "github.com/sacloud/iaas-api-go"
@@ -35,7 +34,6 @@ type Client struct {
 	Service        DNSService      // underlying SakuraCloud DNS service
 	ZoneName       string          // DNS zone name, e.g. "example.com"
 	ZoneID         types.ID        // SakuraCloud DNS zone ID
-	RequestTimeout time.Duration   // timeout for read/update operations
 }
 
 // DNSService defines the methods used from the SakuraCloud DNS API
@@ -90,7 +88,6 @@ func NewClient(zoneName, token, secret string) (*Client, error) {
 		Service:        svc,
 		ZoneName:       zoneName,
 		ZoneID:         zoneID,
-		RequestTimeout: 10 * time.Second,
 	}
 	log.Printf("Client for zone '%s' initialized successfully within http request timeout limit", zoneName)
 	return client, nil

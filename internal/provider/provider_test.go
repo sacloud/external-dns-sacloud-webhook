@@ -19,7 +19,6 @@ import (
 	"errors"
 	"reflect"
 	"testing"
-	"time"
 
 	iaas "github.com/sacloud/iaas-api-go"
 	"github.com/sacloud/iaas-api-go/types"
@@ -82,7 +81,6 @@ func TestListRecords(t *testing.T) {
 		Service:        fake,
 		ZoneName:       "example.com",
 		ZoneID:         123,
-		RequestTimeout: 5 * time.Second,
 	}
 
 	records, err := client.ListRecords(context.Background())
@@ -120,7 +118,6 @@ func TestApplyChanges(t *testing.T) {
 		Service:        fake,
 		ZoneName:       "mixed.com",
 		ZoneID:         999,
-		RequestTimeout: 5 * time.Second,
 	}
 
 	toCreate := []Record{
@@ -182,7 +179,6 @@ func TestApplyChanges_Error(t *testing.T) {
 		Service:        fake,
 		ZoneName:       "z",
 		ZoneID:         1,
-		RequestTimeout: 1 * time.Second,
 	}
 
 	err := client.ApplyChanges(context.Background(), nil, nil)
