@@ -53,8 +53,8 @@ func NewClient(zoneName, token, secret string) (*Client, error) {
 	opts := &client.Options{
 		AccessToken:       token,
 		AccessTokenSecret: secret,
-		HttpRequestTimeout: 300,
-		RetryMax: 1,
+		HttpRequestTimeout: 30,
+		RetryWaitMax: 1,
 	}
 	apiClient := iaas.NewClientWithOptions(opts)
 	log.Printf("SakuraCloud API client created with provided token, secret, and timeout")
