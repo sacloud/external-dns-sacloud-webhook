@@ -36,23 +36,26 @@ type fakeDNSService struct {
 	lastUpdateReq *dns.UpdateRequest
 }
 
-func (f *fakeDNSService) Find(req *dns.FindRequest) ([]*iaas.DNS, error) {
+func (f *fakeDNSService) FindWithContext(ctx context.Context, req *dns.FindRequest) ([]*iaas.DNS, error) {
+	if ctx != nil && ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
 	return f.findResp, f.findErr
 }
 
 func (f *fakeDNSService) ReadWithContext(ctx context.Context, req *dns.ReadRequest) (*iaas.DNS, error) {
-    if ctx.Err() != nil {
-        return nil, ctx.Err()
-    }
-    return f.readResp, f.readErr
+	if ctx != nil && ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+	return f.readResp, f.readErr
 }
 
 func (f *fakeDNSService) UpdateWithContext(ctx context.Context, req *dns.UpdateRequest) (*iaas.DNS, error) {
-    if ctx.Err() != nil {
-        return nil, ctx.Err()
-    }
-    f.lastUpdateReq = req
-    return f.updateResp, f.updateErr
+	if ctx != nil && ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+	f.lastUpdateReq = req
+	return f.updateResp, f.updateErr
 }
 func TestListRecords(t *testing.T) {
 	fake := &fakeDNSService{
@@ -186,6 +189,26 @@ func TestApplyChanges_Error(t *testing.T) {
 	if err == nil || err.Error() != "api failure" {
 		t.Errorf("ApplyChanges() error = %v; want \"api failure\"", err)
 	}
+}
+
+func TestFindWithContext_Timeout(t *testing.T) {
+    fake := &fakeDNSService{
+        findResp: []*iaas.DNS{},
+        findErr:  nil,
+    }
+    client := &Client{
+        Context:        context.Background(),
+        Service:        fake,
+        ZoneName:       "z",
+        ZoneID:         1,
+        RequestTimeout: 1 * time.Second,
+    }
+    ctx, cancel := context.WithCancel(context.Background())
+    cancel()
+    _, err := client.Service.FindWithContext(ctx, &dns.FindRequest{})
+    if err == nil {
+        t.Errorf("FindWithContext() should fail with canceled context")
+    }
 }
 
 func TestListRecords_ContextTimeout(t *testing.T) {
