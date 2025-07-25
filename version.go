@@ -14,4 +14,4 @@
 
 package external_dns_sacloud_webhook
 
-const Version = "0.1.1"
+const Version = "0.1.2"
