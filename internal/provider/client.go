@@ -53,7 +53,7 @@ func NewClient(zoneName, token, secret string) (*Client, error) {
 	opts := &client.Options{
 		AccessToken:       token,
 		AccessTokenSecret: secret,
-		HttpRequestTimeout: 10,
+		HttpRequestTimeout: 300,
 		RetryMax: 1,
 	}
 	apiClient := iaas.NewClientWithOptions(opts)
