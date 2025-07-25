@@ -15,11 +15,13 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/sacloud/external-dns-sacloud-webhook/internal/provider"
 	"sigs.k8s.io/external-dns/endpoint"
@@ -126,7 +128,9 @@ func ApplyHandler(client Provider) http.HandlerFunc {
 
 		log.Printf("[ApplyHandler] create count: %d, delete count: %d", len(toCreate), len(toDelete))
 
-		if err := client.ApplyChanges(r.Context(), toCreate, toDelete); err != nil {
+		ctx, cancel := context.WithTimeout(r.Context(), 10 * time.Second)
+  		defer cancel()
+		if err := client.ApplyChanges(ctx, toCreate, toDelete); err != nil {
 			log.Printf("[ApplyHandler] error applying changes: %v", err)
 			http.Error(w, "failed to apply DNS changes", http.StatusInternalServerError)
 			return

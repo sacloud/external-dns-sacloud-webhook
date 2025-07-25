@@ -37,8 +37,6 @@ type Record struct {
 
 // ListRecords fetches all DNS records for the configured zone.
 func (c *Client) ListRecords(ctx context.Context) ([]Record, error) {
-	ctx, cancel := context.WithTimeout(ctx, c.RequestTimeout)
-	defer cancel()
 	log.Printf("Listing records for zone '%s' (ID: %d)", c.ZoneName, c.ZoneID)
 	dnsZone, err := c.Service.ReadWithContext(ctx, &dns.ReadRequest{ID: c.ZoneID})
 	if err != nil {
@@ -62,8 +60,6 @@ func (c *Client) ListRecords(ctx context.Context) ([]Record, error) {
 
 // ApplyChanges applies create and delete operations to DNS records.
 func (c *Client) ApplyChanges(ctx context.Context, create, del []Record) error {
-	ctx, cancel := context.WithTimeout(ctx, c.RequestTimeout)
-	defer cancel()
 	log.Printf("Applying changes: create %d, delete %d records", len(create), len(del))
 	dnsZone, err := c.Service.ReadWithContext(ctx, &dns.ReadRequest{ID: c.ZoneID})
 	if err != nil {
@@ -107,6 +103,7 @@ func (c *Client) ApplyChanges(ctx context.Context, create, del []Record) error {
 		Records: newSets,
 		SettingsHash: dnsZone.SettingsHash, // Preserve existing settings hash
 	}
+
 	if _, err := c.Service.UpdateWithContext(ctx, updateReq); err != nil {
 		log.Printf("Error applying DNS changes: %v", err)
 		return err

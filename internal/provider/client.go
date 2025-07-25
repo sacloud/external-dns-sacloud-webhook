@@ -20,6 +20,7 @@ import (
 	"log"
 	"time"
 
+	client "github.com/sacloud/api-client-go"
 	iaas "github.com/sacloud/iaas-api-go"
 	"github.com/sacloud/iaas-api-go/types"
 	"github.com/sacloud/iaas-service-go/dns"
@@ -51,16 +52,20 @@ type DNSService interface {
 func NewClient(zoneName, token, secret string) (*Client, error) {
 	log.Printf("Initializing SakuraCloud DNS client for zone '%s'", zoneName)
 
-	apiClient := iaas.NewClient(token, secret)
-	log.Printf("SakuraCloud API client created with provided token and secret")
+	opts := &client.Options{
+		AccessToken:       token,
+		AccessTokenSecret: secret,
+		HttpRequestTimeout: 10,
+		RetryMax: 1,
+	}
+	apiClient := iaas.NewClientWithOptions(opts)
+	log.Printf("SakuraCloud API client created with provided token, secret, and timeout")
 
 	svc := dns.New(apiClient)
 	log.Printf("SakuraCloud DNS service instance ready")
 
 	log.Printf("Searching for DNS zone '%s'", zoneName)
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	zones, err := svc.FindWithContext(ctx, &dns.FindRequest{})
+	zones, err := svc.Find(&dns.FindRequest{})
 	if err != nil {
 		log.Printf("Error finding DNS zones: %v", err)
 		return nil, err
@@ -87,7 +92,7 @@ func NewClient(zoneName, token, secret string) (*Client, error) {
 		ZoneID:         zoneID,
 		RequestTimeout: 10 * time.Second,
 	}
-	log.Printf("Client for zone '%s' initialized successfully within %.0f seconds", zoneName, client.RequestTimeout.Seconds())
+	log.Printf("Client for zone '%s' initialized successfully within http request timeout limit", zoneName)
 	return client, nil
 }
 

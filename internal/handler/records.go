@@ -15,6 +15,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -35,7 +36,9 @@ func RecordsHandler(client Provider) http.HandlerFunc {
 
 		log.Printf("[RecordsHandler] GET /records invoked")
 
-		records, err := client.ListRecords(r.Context())
+		ctx, cancel := context.WithTimeout(r.Context(), 10 * time.Second)
+  		defer cancel()
+		records, err := client.ListRecords(ctx)
 		if err != nil {
 			log.Printf("[RecordsHandler] error listing records: %v", err)
 			http.Error(w, "failed to list DNS records", http.StatusInternalServerError)
