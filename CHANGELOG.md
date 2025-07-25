@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.1.2](https://github.com/sacloud/external-dns-sacloud-webhook/compare/v0.1.1...v0.1.2) - 2025-07-25
+- fix: RequestTimeout handler by @ippanpeople in https://github.com/sacloud/external-dns-sacloud-webhook/pull/16
+
 ## [v0.1.1](https://github.com/sacloud/external-dns-sacloud-webhook/compare/v0.1.0...v0.1.1) - 2025-07-24
 - Fix/timeout handler by @ippanpeople in https://github.com/sacloud/external-dns-sacloud-webhook/pull/15
 
