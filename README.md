@@ -47,7 +47,7 @@ This project implements a **Webhook Provider** for SakuraCloud, allowing Externa
 > - [SakuraCloud API Key](https://manual.sakura.ad.jp/cloud/api/apikey.html#apikey)
 > - [SakuraCloud DNS](https://manual.sakura.ad.jp/cloud/appliance/dns/index.html)
 
-## Installation
+## Usage
 
 ### 0. Download Releases
 
