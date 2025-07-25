@@ -18,8 +18,8 @@ import (
 	"context"
 	"errors"
 	"log"
-	"time"
 
+	client "github.com/sacloud/api-client-go"
 	iaas "github.com/sacloud/iaas-api-go"
 	"github.com/sacloud/iaas-api-go/types"
 	"github.com/sacloud/iaas-service-go/dns"
@@ -34,13 +34,12 @@ type Client struct {
 	Service        DNSService      // underlying SakuraCloud DNS service
 	ZoneName       string          // DNS zone name, e.g. "example.com"
 	ZoneID         types.ID        // SakuraCloud DNS zone ID
-	RequestTimeout time.Duration   // timeout for read/update operations
 }
 
 // DNSService defines the methods used from the SakuraCloud DNS API
 // including context-aware read/update for timeouts
 type DNSService interface {
-	Find(req *dns.FindRequest) ([]*iaas.DNS, error)
+	FindWithContext(ctx context.Context, req *dns.FindRequest) ([]*iaas.DNS, error)
 	ReadWithContext(ctx context.Context, req *dns.ReadRequest) (*iaas.DNS, error)
 	UpdateWithContext(ctx context.Context, req *dns.UpdateRequest) (*iaas.DNS, error)
 }
@@ -51,11 +50,17 @@ type DNSService interface {
 func NewClient(zoneName, token, secret string) (*Client, error) {
 	log.Printf("Initializing SakuraCloud DNS client for zone '%s'", zoneName)
 
-	apiClient := iaas.NewClient(token, secret)
-	log.Printf("SakuraCloud API client created with provided token and secret")
+	opts := &client.Options{
+		AccessToken:       token,
+		AccessTokenSecret: secret,
+		HttpRequestTimeout: 30,
+		RetryWaitMax: 1,
+	}
+	apiClient := iaas.NewClientWithOptions(opts)
+	log.Printf("SakuraCloud API client created with provided token, secret, and timeout")
 
 	svc := dns.New(apiClient)
-	log.Printf("DNS service initialized")
+	log.Printf("SakuraCloud DNS service instance ready")
 
 	log.Printf("Searching for DNS zone '%s'", zoneName)
 	zones, err := svc.Find(&dns.FindRequest{})
@@ -83,9 +88,8 @@ func NewClient(zoneName, token, secret string) (*Client, error) {
 		Service:        svc,
 		ZoneName:       zoneName,
 		ZoneID:         zoneID,
-		RequestTimeout: 10 * time.Second,
 	}
-	log.Printf("Client for zone '%s' initialized successfully with timeout %s", zoneName, client.RequestTimeout)
+	log.Printf("Client for zone '%s' initialized successfully within http request timeout limit", zoneName)
 	return client, nil
 }
 

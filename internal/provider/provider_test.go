@@ -19,7 +19,6 @@ import (
 	"errors"
 	"reflect"
 	"testing"
-	"time"
 
 	iaas "github.com/sacloud/iaas-api-go"
 	"github.com/sacloud/iaas-api-go/types"
@@ -36,23 +35,26 @@ type fakeDNSService struct {
 	lastUpdateReq *dns.UpdateRequest
 }
 
-func (f *fakeDNSService) Find(req *dns.FindRequest) ([]*iaas.DNS, error) {
+func (f *fakeDNSService) FindWithContext(ctx context.Context, req *dns.FindRequest) ([]*iaas.DNS, error) {
+	if ctx != nil && ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
 	return f.findResp, f.findErr
 }
 
 func (f *fakeDNSService) ReadWithContext(ctx context.Context, req *dns.ReadRequest) (*iaas.DNS, error) {
-    if ctx.Err() != nil {
-        return nil, ctx.Err()
-    }
-    return f.readResp, f.readErr
+	if ctx != nil && ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+	return f.readResp, f.readErr
 }
 
 func (f *fakeDNSService) UpdateWithContext(ctx context.Context, req *dns.UpdateRequest) (*iaas.DNS, error) {
-    if ctx.Err() != nil {
-        return nil, ctx.Err()
-    }
-    f.lastUpdateReq = req
-    return f.updateResp, f.updateErr
+	if ctx != nil && ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+	f.lastUpdateReq = req
+	return f.updateResp, f.updateErr
 }
 func TestListRecords(t *testing.T) {
 	fake := &fakeDNSService{
@@ -79,7 +81,6 @@ func TestListRecords(t *testing.T) {
 		Service:        fake,
 		ZoneName:       "example.com",
 		ZoneID:         123,
-		RequestTimeout: 5 * time.Second,
 	}
 
 	records, err := client.ListRecords(context.Background())
@@ -117,7 +118,6 @@ func TestApplyChanges(t *testing.T) {
 		Service:        fake,
 		ZoneName:       "mixed.com",
 		ZoneID:         999,
-		RequestTimeout: 5 * time.Second,
 	}
 
 	toCreate := []Record{
@@ -179,50 +179,10 @@ func TestApplyChanges_Error(t *testing.T) {
 		Service:        fake,
 		ZoneName:       "z",
 		ZoneID:         1,
-		RequestTimeout: 1 * time.Second,
 	}
 
 	err := client.ApplyChanges(context.Background(), nil, nil)
 	if err == nil || err.Error() != "api failure" {
 		t.Errorf("ApplyChanges() error = %v; want \"api failure\"", err)
 	}
-}
-
-func TestListRecords_ContextTimeout(t *testing.T) {
-    fake := &fakeDNSService{
-        readResp: &iaas.DNS{ID: 1, Name: "z", Records: []*iaas.DNSRecord{}},
-    }
-    client := &Client{
-        Context:        context.Background(),
-        Service:        fake,
-        ZoneName:       "z",
-        ZoneID:         1,
-        RequestTimeout: 1 * time.Second,
-    }
-    ctx, cancel := context.WithCancel(context.Background())
-    cancel()
-    _, err := client.ListRecords(ctx)
-    if err == nil {
-        t.Errorf("ListRecords() should fail with canceled context")
-    }
-}
-
-func TestApplyChanges_ContextTimeout(t *testing.T) {
-    fake := &fakeDNSService{
-        readResp:  &iaas.DNS{ID: 1, Name: "z", Records: []*iaas.DNSRecord{}},
-        updateErr: nil,
-    }
-    client := &Client{
-        Context:        context.Background(),
-        Service:        fake,
-        ZoneName:       "z",
-        ZoneID:         1,
-        RequestTimeout: 1 * time.Second,
-    }
-    ctx, cancel := context.WithCancel(context.Background())
-    cancel()
-    err := client.ApplyChanges(ctx, nil, nil)
-    if err == nil {
-        t.Errorf("ApplyChanges() should fail with canceled context")
-    }
 }

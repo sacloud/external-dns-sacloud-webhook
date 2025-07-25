@@ -49,7 +49,7 @@ ExternalDNS は Kubernetes リソースの DNS レコード管理を自動化す
 > * [SakuraCloud API Key](https://manual.sakura.ad.jp/cloud/api/apikey.html#apikey)
 > * [SakuraCloud DNS](https://manual.sakura.ad.jp/cloud/appliance/dns/index.html)
 
-## インストール
+## 使い方
 
 ### 0. リリースのダウンロード
 
