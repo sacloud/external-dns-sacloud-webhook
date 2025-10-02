@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.2.1](https://github.com/sacloud/external-dns-sacloud-webhook/compare/v0.2.0...v0.2.1) - 2025-10-02
+- fix: normalize CNAME record target by removing trailing dot to avoid … by @ippanpeople in https://github.com/sacloud/external-dns-sacloud-webhook/pull/30
+
 ## [v0.2.0](https://github.com/sacloud/external-dns-sacloud-webhook/compare/v0.1.2...v0.2.0) - 2025-10-02
 - skip empty dns update and update record when ttl changed by @ippanpeople in https://github.com/sacloud/external-dns-sacloud-webhook/pull/28
 - go: bump github.com/sacloud/iaas-service-go from 1.12.1 to 1.14.0 by @dependabot[bot] in https://github.com/sacloud/external-dns-sacloud-webhook/pull/27
