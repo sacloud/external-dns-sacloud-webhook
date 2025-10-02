@@ -46,10 +46,14 @@ func (c *Client) ListRecords(ctx context.Context) ([]Record, error) {
 
 	var records []Record
 	for _, rs := range dnsZone.Records {
+		rdata := rs.RData
+		if len(rdata) > 0 && rdata[len(rdata)-1] == '.' {
+			rdata = rdata[:len(rdata)-1]
+		}
 		rec := Record{
 			Type:    string(rs.Type),
 			Name:    rs.Name,
-			Targets: []string{rs.RData},
+			Targets: []string{rdata},
 			TTL:     rs.TTL,
 		}
 		log.Printf("Found record: %s %s -> %v (TTL=%d)", rec.Type, rec.Name, rec.Targets, rec.TTL)
