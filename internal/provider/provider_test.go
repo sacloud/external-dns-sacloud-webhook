@@ -56,6 +56,7 @@ func (f *fakeDNSService) UpdateWithContext(ctx context.Context, req *dns.UpdateR
 	f.lastUpdateReq = req
 	return f.updateResp, f.updateErr
 }
+
 func TestListRecords(t *testing.T) {
 	fake := &fakeDNSService{
 		readResp: &iaas.DNS{
@@ -77,10 +78,10 @@ func TestListRecords(t *testing.T) {
 	}
 
 	client := &Client{
-		Context:        context.Background(),
-		Service:        fake,
-		ZoneName:       "example.com",
-		ZoneID:         123,
+		Context:  context.Background(),
+		Service:  fake,
+		ZoneName: "example.com",
+		ZoneID:   123,
 	}
 
 	records, err := client.ListRecords(context.Background())
@@ -114,10 +115,10 @@ func TestApplyChanges(t *testing.T) {
 	}
 
 	client := &Client{
-		Context:        context.Background(),
-		Service:        fake,
-		ZoneName:       "mixed.com",
-		ZoneID:         999,
+		Context:  context.Background(),
+		Service:  fake,
+		ZoneName: "mixed.com",
+		ZoneID:   999,
 	}
 
 	toCreate := []Record{
@@ -168,21 +169,58 @@ func TestApplyChanges(t *testing.T) {
 	}
 }
 
+func TestApplyChanges_NoOp(t *testing.T) {
+	fake := &fakeDNSService{
+		readResp: &iaas.DNS{
+			ID:      1,
+			Name:    "z",
+			Records: []*iaas.DNSRecord{},
+		},
+		updateErr: errors.New("should not be called"),
+	}
+	client := &Client{
+		Context:  context.Background(),
+		Service:  fake,
+		ZoneName: "z",
+		ZoneID:   1,
+	}
+
+	err := client.ApplyChanges(context.Background(), nil, nil)
+	if err != nil {
+		t.Fatalf("ApplyChanges() no-op returned error: %v", err)
+	}
+	if fake.lastUpdateReq != nil {
+		t.Fatalf("UpdateWithContext should NOT be called on no-op")
+	}
+}
+
 func TestApplyChanges_Error(t *testing.T) {
 	fake := &fakeDNSService{
-		readResp:  &iaas.DNS{ID: 1, Name: "z", Records: []*iaas.DNSRecord{}},
+		readResp: &iaas.DNS{
+			ID:   1,
+			Name: "z",
+			Records: []*iaas.DNSRecord{
+				{Name: "r", Type: types.EDNSRecordType("A"), RData: "1.2.3.4"},
+			},
+		},
 		updateErr: errors.New("api failure"),
 	}
 
 	client := &Client{
-		Context:        context.Background(),
-		Service:        fake,
-		ZoneName:       "z",
-		ZoneID:         1,
+		Context:  context.Background(),
+		Service:  fake,
+		ZoneName: "z",
+		ZoneID:   1,
 	}
 
-	err := client.ApplyChanges(context.Background(), nil, nil)
+	err := client.ApplyChanges(context.Background(),
+		nil,
+		[]Record{{Name: "r", Type: "A", Targets: []string{"1.2.3.4"}}},
+	)
 	if err == nil || err.Error() != "api failure" {
 		t.Errorf("ApplyChanges() error = %v; want \"api failure\"", err)
+	}
+	if fake.lastUpdateReq == nil {
+		t.Fatal("expected UpdateWithContext to be called, but it wasn't")
 	}
 }

@@ -27,15 +27,46 @@ import (
 
 // ChangeRequest defines the JSON payload for applyChanges requests.
 // It carries the lists of endpoints to create and delete.
+//
+// NOTE: ExternalDNS webhook v1 may also send "updateOld" and "updateNew"
+// for in-place updates such as TTL/target changes. To keep provider logic
+// simple and idempotent, we convert updates into equivalent delete+create
+// operations in the handler.
 type ChangeRequest struct {
-	Create []*endpoint.Endpoint `json:"create"`
-	Delete []*endpoint.Endpoint `json:"delete"`
+	Create    []*endpoint.Endpoint `json:"create"`
+	Delete    []*endpoint.Endpoint `json:"delete"`
+	UpdateOld []*endpoint.Endpoint `json:"updateOld"`
+	UpdateNew []*endpoint.Endpoint `json:"updateNew"`
+}
+
+// safeTrimZoneSuffix trims the zone suffix only if the name actually ends
+// with the given zone suffix. It also drops a trailing dot if any.
+//
+// This prevents accidental over-trimming when the input name does not belong
+// to the current zone (or already came in relative form).
+func safeTrimZoneSuffix(name, zoneSuffix string) string {
+	if zoneSuffix != "" && strings.HasSuffix(name, zoneSuffix) {
+		name = strings.TrimSuffix(name, zoneSuffix)
+	}
+	// Normalize trailing dot for safety (relative record names must not end with ".")
+	return strings.TrimSuffix(name, ".")
 }
 
 // convertEndpoints converts []*endpoint.Endpoint to []provider.Record.
+//
+// - TXT ownership records: keep type TXT, strip surrounding quotes on targets.
+// - CNAME/ALIAS: ensure targets end with a trailing dot (FQDN) for SakuraCloud.
+// - TTL: use endpoint.RecordTTL if given (>0), otherwise fall back to 3600.
+// - Name: convert to relative record name by trimming the zone suffix when present.
+// - ALIAS: detected via providerSpecific "alias=true" on a CNAME endpoint.
+//
 func convertEndpoints(endpoints []*endpoint.Endpoint, zoneSuffix, txtPrefix string) []provider.Record {
 	var records []provider.Record
 	for _, e := range endpoints {
+		if e == nil {
+			continue
+		}
+
 		var recType string
 		if e.RecordType == "TXT" && strings.HasPrefix(e.DNSName, txtPrefix) {
 			// Always treat registry entries as TXT
@@ -53,17 +84,18 @@ func convertEndpoints(endpoints []*endpoint.Endpoint, zoneSuffix, txtPrefix stri
 			}
 		}
 
-		name := strings.TrimSuffix(e.DNSName, zoneSuffix)
+		// Convert to relative name with safe zone trimming
+		name := safeTrimZoneSuffix(e.DNSName, zoneSuffix)
 
-		var targets []string
+		// Normalize targets per record type
+		targets := make([]string, 0, len(e.Targets))
 		for _, t := range e.Targets {
 			switch recType {
 			case "TXT":
-				// Remove surrounding quotes for TXT
+				// Remove surrounding quotes for TXT payload
 				t = strings.Trim(t, "\"")
 			case "CNAME", "ALIAS":
-				// External-DNS will default to remove trailing dot
-				// but we must ensure it ends with a dot for CNAME/ALIAS in SakuraCloud
+				// Ensure trailing dot for FQDN targets
 				if !strings.HasSuffix(t, ".") {
 					t += "."
 				}
@@ -91,6 +123,9 @@ func convertEndpoints(endpoints []*endpoint.Endpoint, zoneSuffix, txtPrefix stri
 // strips the zone suffix from names, handles TXT quoting,
 // ensures proper trailing dots for CNAME/ALIAS,
 // and respects the "alias=true" providerSpecific flag.
+//
+// Additionally, this handler supports ExternalDNS "updateOld/updateNew" by
+// projecting them to delete+create operations to keep the provider side simple.
 func ApplyHandler(client Provider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("[ApplyHandler] %s %s", r.Method, r.URL.Path)
@@ -124,7 +159,16 @@ func ApplyHandler(client Provider) http.HandlerFunc {
 		toCreate := convertEndpoints(req.Create, zoneSuffix, txtPrefix)
 		toDelete := convertEndpoints(req.Delete, zoneSuffix, txtPrefix)
 
-		log.Printf("[ApplyHandler] create count: %d, delete count: %d", len(toCreate), len(toDelete))
+		// Convert updates into delete+create to surface them to the provider
+		updateOld := convertEndpoints(req.UpdateOld, zoneSuffix, txtPrefix)
+		updateNew := convertEndpoints(req.UpdateNew, zoneSuffix, txtPrefix)
+		if len(updateOld) > 0 || len(updateNew) > 0 {
+			toDelete = append(toDelete, updateOld...)
+			toCreate = append(toCreate, updateNew...)
+		}
+
+		log.Printf("[ApplyHandler] create count: %d, delete count: %d (updateOld=%d, updateNew=%d)",
+			len(toCreate), len(toDelete), len(req.UpdateOld), len(req.UpdateNew))
 
 		if err := client.ApplyChanges(r.Context(), toCreate, toDelete); err != nil {
 			log.Printf("[ApplyHandler] error applying changes: %v", err)

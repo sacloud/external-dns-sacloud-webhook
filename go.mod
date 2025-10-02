@@ -10,8 +10,7 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.23.0 // indirect
-	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
-	github.com/google/go-cmp v0.7.0 // indirect
+	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -20,7 +19,6 @@ require (
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
-	github.com/sacloud/api-client-go v0.3.0 // indirect
 	github.com/sacloud/go-http v0.1.9 // indirect
 	github.com/sacloud/packages-go v0.0.11 // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
@@ -40,6 +38,7 @@ require (
 )
 
 require (
+	github.com/sacloud/api-client-go v0.3.0
 	github.com/sacloud/iaas-api-go v1.16.0
 	github.com/sacloud/iaas-service-go v1.12.1
 	github.com/spf13/cobra v1.9.1
