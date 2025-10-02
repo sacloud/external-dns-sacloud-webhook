@@ -61,6 +61,11 @@ func (c *Client) ListRecords(ctx context.Context) ([]Record, error) {
 // ApplyChanges applies create and delete operations to DNS records.
 func (c *Client) ApplyChanges(ctx context.Context, create, del []Record) error {
 	log.Printf("Applying changes: create %d, delete %d records", len(create), len(del))
+	if len(create) == 0 && len(del) == 0 {
+        log.Printf("No-op: nothing to create/delete, skip DNS update")
+        return nil
+    }
+
 	dnsZone, err := c.Service.ReadWithContext(ctx, &dns.ReadRequest{ID: c.ZoneID})
 	if err != nil {
 		log.Printf("Error reading DNS zone before update: %v", err)

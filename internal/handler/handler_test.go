@@ -21,6 +21,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 
 	"github.com/sacloud/external-dns-sacloud-webhook/internal/provider"
@@ -135,13 +136,13 @@ func TestAdjustHandler_BadContentType(t *testing.T) {
 	}
 }
 
-func TestApplyHandler_Success(t *testing.T) {
+func TestApplyHandler_Success_CreateDeleteOnly(t *testing.T) {
 	fake := &fakeProvider{}
 	handler := ApplyHandler(fake)
 
 	cr := ChangeRequest{
 		Create: []*endpoint.Endpoint{
-			{DNSName: "x.example.com", Targets: []string{"2.2.2.2"}, RecordType: "A"},
+			{DNSName: "x.example.com", Targets: []string{"2.2.2.2"}, RecordType: "A", RecordTTL: 300},
 		},
 		Delete: []*endpoint.Endpoint{
 			{DNSName: "y.example.com", Targets: []string{"3.3.3.3"}, RecordType: "A"},
@@ -157,9 +158,105 @@ func TestApplyHandler_Success(t *testing.T) {
 	if rr.Code != http.StatusNoContent {
 		t.Fatalf("expected 204 No Content, got %d", rr.Code)
 	}
-	// Verify that fakeProvider received the correct create/delete input
+
+	// Verify provider inputs
 	if len(fake.createIn) != 1 || len(fake.deleteIn) != 1 {
-		t.Errorf("unexpected create/delete slices: %+v / %+v", fake.createIn, fake.deleteIn)
+		t.Fatalf("unexpected create/delete slices: %+v / %+v", fake.createIn, fake.deleteIn)
+	}
+	// Name should be trimmed to relative (without ".example.com")
+	if fake.createIn[0].Name != "x" || fake.deleteIn[0].Name != "y" {
+		t.Errorf("unexpected names: create=%q delete=%q", fake.createIn[0].Name, fake.deleteIn[0].Name)
+	}
+	// TTL fallback/override check
+	if fake.createIn[0].TTL != 300 {
+		t.Errorf("expected TTL=300, got %d", fake.createIn[0].TTL)
+	}
+}
+
+func TestApplyHandler_Success_WithUpdates_MappedToDeleteCreate(t *testing.T) {
+	fake := &fakeProvider{}
+	handler := ApplyHandler(fake)
+
+	cr := ChangeRequest{
+		// No direct create/delete
+		Create: nil,
+		Delete: nil,
+		// Simulate TTL update for the same CNAME with alias=true
+		UpdateOld: []*endpoint.Endpoint{
+			{
+				DNSName:      "cname.example.com",
+				RecordType:   "CNAME",
+				RecordTTL:    120,
+				Targets:      endpoint.Targets{"target.example.com."},
+				ProviderSpecific: endpoint.ProviderSpecific{
+					{Name: "alias", Value: "true"},
+				},
+			},
+		},
+		UpdateNew: []*endpoint.Endpoint{
+			{
+				DNSName:      "cname.example.com",
+				RecordType:   "CNAME",
+				RecordTTL:    3600,
+				Targets:      endpoint.Targets{"target.example.com"}, // no trailing dot -> should be normalized to end with dot
+				ProviderSpecific: endpoint.ProviderSpecific{
+					{Name: "alias", Value: "true"},
+				},
+			},
+		},
+	}
+	body, _ := json.Marshal(cr)
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/records", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/external.dns.webhook+json;version=1")
+	handler(rr, req)
+
+	if rr.Code != http.StatusNoContent {
+		t.Fatalf("expected 204 No Content, got %d", rr.Code)
+	}
+
+	// Expect: update transformed into delete+create
+	if len(fake.deleteIn) != 1 || len(fake.createIn) != 1 {
+		t.Fatalf("expected 1 delete and 1 create, got delete=%d create=%d", len(fake.deleteIn), len(fake.createIn))
+	}
+
+	del := fake.deleteIn[0]
+	crt := fake.createIn[0]
+
+	// Both names should be relative (zone suffix trimmed)
+	if del.Name != "cname" || crt.Name != "cname" {
+		t.Errorf("unexpected names after trim: delete=%q create=%q", del.Name, crt.Name)
+	}
+
+	// Types: alias=true on CNAME is mapped to ALIAS
+	if del.Type != "ALIAS" || crt.Type != "ALIAS" {
+		t.Errorf("expected ALIAS types, got delete=%q create=%q", del.Type, crt.Type)
+	}
+
+	// Targets should end with trailing dot for CNAME/ALIAS
+	if len(crt.Targets) != 1 || crt.Targets[0] != "target.example.com." {
+		t.Errorf("unexpected create target normalization: %+v", crt.Targets)
+	}
+
+	// TTL updated
+	if del.TTL != 120 || crt.TTL != 3600 {
+		t.Errorf("unexpected TTLs: delete=%d create=%d", del.TTL, crt.TTL)
+	}
+}
+
+func TestApplyHandler_BadContentType(t *testing.T) {
+	fake := &fakeProvider{}
+	handler := ApplyHandler(fake)
+
+	body, _ := json.Marshal(ChangeRequest{})
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/records", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json") // wrong
+	handler(rr, req)
+
+	if rr.Code != http.StatusUnsupportedMediaType {
+		t.Errorf("expected 415 Unsupported Media Type, got %d", rr.Code)
 	}
 }
 
@@ -225,5 +322,39 @@ func TestApplyHandler_ContextTimeout(t *testing.T) {
 
 	if rr.Code != http.StatusInternalServerError {
 		t.Errorf("expected 500 Internal Server Error on context canceled, got %d", rr.Code)
+	}
+}
+
+// Optional sanity test: ensure convertEndpoints keeps TXT ownership formatting.
+// (This is a white-box-ish test; if you prefer black-box, you can rely on the ALIAS update test above.)
+func Test_convertEndpoints_TXT_and_AliasNormalization(t *testing.T) {
+	zoneSuffix := ".example.com"
+	txtPrefix := "_external-dns."
+
+	in := []*endpoint.Endpoint{
+		{
+			DNSName:    "_external-dns.cname-foo.example.com",
+			RecordType: "TXT",
+			Targets:    endpoint.Targets{`"heritage=external-dns,owner=default"`},
+		},
+		{
+			DNSName:    "bar.example.com",
+			RecordType: "CNAME",
+			Targets:    endpoint.Targets{"target.example.com"}, // no trailing dot
+			ProviderSpecific: endpoint.ProviderSpecific{
+				{Name: "alias", Value: "true"},
+			},
+		},
+	}
+
+	got := convertEndpoints(in, zoneSuffix, txtPrefix)
+
+	want := []provider.Record{
+		{Type: "TXT", Name: "_external-dns.cname-foo", Targets: []string{"heritage=external-dns,owner=default"}, TTL: 3600},
+		{Type: "ALIAS", Name: "bar", Targets: []string{"target.example.com."}, TTL: 3600},
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("convertEndpoints mismatch:\n got = %#v\nwant = %#v", got, want)
 	}
 }
