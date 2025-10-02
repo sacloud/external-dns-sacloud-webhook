@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.2.0](https://github.com/sacloud/external-dns-sacloud-webhook/compare/v0.1.2...v0.2.0) - 2025-10-02
+- skip empty dns update and update record when ttl changed by @ippanpeople in https://github.com/sacloud/external-dns-sacloud-webhook/pull/28
+- go: bump github.com/sacloud/iaas-service-go from 1.12.1 to 1.14.0 by @dependabot[bot] in https://github.com/sacloud/external-dns-sacloud-webhook/pull/27
+- go: bump github.com/spf13/viper from 1.20.1 to 1.21.0 by @dependabot[bot] in https://github.com/sacloud/external-dns-sacloud-webhook/pull/25
+- go: bump github.com/spf13/cobra from 1.9.1 to 1.10.1 by @dependabot[bot] in https://github.com/sacloud/external-dns-sacloud-webhook/pull/22
+- actions: bump actions/checkout from 4 to 5 by @dependabot[bot] in https://github.com/sacloud/external-dns-sacloud-webhook/pull/19
+
 ## [v0.1.2](https://github.com/sacloud/external-dns-sacloud-webhook/compare/v0.1.1...v0.1.2) - 2025-07-25
 - fix: RequestTimeout handler by @ippanpeople in https://github.com/sacloud/external-dns-sacloud-webhook/pull/16
 
