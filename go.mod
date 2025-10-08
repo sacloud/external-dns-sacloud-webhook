@@ -38,7 +38,7 @@ require (
 
 require (
 	github.com/sacloud/api-client-go v0.3.3
-	github.com/sacloud/iaas-api-go v1.17.2
+	github.com/sacloud/iaas-api-go v1.17.3
 	github.com/sacloud/iaas-service-go v1.14.0
 	github.com/spf13/cobra v1.10.1
 	github.com/spf13/viper v1.21.0
